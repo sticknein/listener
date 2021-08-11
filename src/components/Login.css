@@ -1,0 +1,30 @@
+#login {
+    text-align: center;
+    padding: 10px;
+    flex: 1;
+    background: linear-gradient(45deg, var(--spotify-green), var(--listener-grey));
+}
+
+#loginContainer {
+    position: relative;
+    top: 40%;
+}
+
+h1 {
+    margin: 30px;
+    top: 50%;
+}
+
+h2 {
+    margin: 30px;
+}
+
+#loginButton {
+    margin: 10px;
+    background: linear-gradient(var(--listener-grey), darkgrey);
+    border-radius: 30px;
+    width: 250px;
+    height: auto;
+    font-weight: 900;
+}
+

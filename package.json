@@ -3,20 +3,38 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@google-cloud/connect-firestore": "^2.0.1",
+    "@google-cloud/firestore": "^4.13.2",
+    "@material-ui/core": "^4.12.2",
+    "@material-ui/icons": "^4.11.2",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
+    "connect": "^3.7.0",
+    "connect-session-firebase": "^5.13.0",
+    "cookie-parser": "^1.4.5",
+    "crypto-random-string": "^4.0.0",
+    "dayjs": "^1.10.6",
+    "dotenv": "^10.0.0",
+    "express-session": "^1.17.2",
+    "firebase": "^8.8.0",
+    "firebase-admin": "^9.11.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-flip-move": "^3.0.4",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "spotify-web-api-node": "^5.0.2",
     "web-vitals": "^1.1.2"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "run": "npm run build && (cd server && npm start)"
   },
+  "proxy": "http://localhost:5000",
   "eslintConfig": {
     "extends": [
       "react-app",

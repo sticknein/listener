@@ -1,0 +1,51 @@
+.profile {
+    flex: 0.65;
+    border-right: 1px solid var(--listener-grey);
+    min-width: fit-content;
+    overflow-y: scroll;
+}
+
+.profile::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge, and Firefox */
+.profile {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+#cover-photo {
+    width: 40vw;
+    height: 40vh;
+}
+
+#prof-pic {
+    width: 150px;
+    border-radius: 50%;
+    border: solid white 1px;
+    margin-top: -75px;
+    margin-left: 10px;
+}
+
+#name-row {
+    margin-left: 10px;
+}
+
+#name-row > h1 {
+    font-size: 30px;
+}
+
+#name-row > h2 {
+    color: rgb(128, 128, 128);
+    font-size: 20px;
+}
+
+#name-row > p {
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+hr {
+    margin-top: 50px;
+}
