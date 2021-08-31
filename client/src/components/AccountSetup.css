@@ -1,0 +1,23 @@
+.create-account {
+    text-align: center;
+    padding-top: 10%;
+    flex: 1;
+    background: linear-gradient(45deg, var(--spotify-green), var(--listener-grey));
+}
+
+input {
+    padding: 10px;
+    text-align: center;
+    background: rgb(233, 233, 233);
+    font-weight: 300;
+    outline: none;
+}
+
+.bio {
+    padding: 20px 0 20px 0;
+    text-align: center;
+    background: rgb(233, 233, 233);
+    font-weight: 300;
+    resize: none;
+    outline: none;
+}

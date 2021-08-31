@@ -1,15 +1,27 @@
 const express = require('express');
 require('dotenv').config({ path: '../.env' });
-const cookieParser = require('cookie-parser');
 const path = require('path');
 const session = require('express-session');
-const Spotify = require('./spotify');
+const bodyParser = require('body-parser');
 const cryptoRandomString = require('crypto-random-string');
-const { db, updateUser, User, userConverter } = require('./firebase');
-const serviceAccount = require(process.env.FIRESTORE_SERVICE_ACCOUNT)
-const connect = require('connect');
 const FirebaseStore = require('connect-session-firebase')(session);
 const admin = require('firebase-admin');
+
+const { 
+    createUser,
+    db, 
+    getUserPosts,
+    sendPost,
+    storage,
+    updateUser,
+    uploadAvatar, 
+    User, 
+    userConverter,
+    userExists 
+} = require('./firebase');
+const serviceAccount = require(process.env.FIRESTORE_SERVICE_ACCOUNT)
+
+const Spotify = require('./spotify');
 
 const app = express();
 
@@ -30,14 +42,24 @@ app.use(
 );
 
 app.use(express.static(path.join(__dirname, '..', 'build')));
-app.use(express.static('public'));
-app.use(cookieParser()); // Change to session
+app.use(express.static(path.join(__dirname, '..', 'client')));
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// GET
 
 app.get('/get-user', (req, res) => {
-    if (!req.session.user) return null;
+    if (!req.session.user) {
+        res.json(null);
+    }
     else {
         res.send(req.session.user);
     };
+})
+
+app.get('/check-user', (req, res) => {
+    if (req.session.user && userExists(req.session.user)) res.send(true);
+    else res.send(false);
 })
 
 app.get('/authorize', (req, res) => {
@@ -52,8 +74,8 @@ app.get('/authorize', (req, res) => {
 
     const state = req.session.state || cryptoRandomString(20);
     req.session.state = state;
-    const authorizeURL = Spotify.createAuthorizeURL(scopes, state);
-    res.redirect(authorizeURL + '&show_dialog=true');
+    const authorizeURL = Spotify.createAuthorizeURL(scopes, state) + '&show_dialog=true';
+    res.json(authorizeURL)
 });
 
 app.get('/spotify-callback', async (req, res) => {
@@ -82,19 +104,34 @@ app.get('/spotify-callback', async (req, res) => {
                 username
             );
             req.session.user = user;
-            updateUser(user);
-            res.redirect('/')
+            if (userExists(user)) {
+                updateUser(user);
+                res.redirect('http://localhost:3000/')
+            } else {
+                res.redirect('http://localhost:3000/account-setup')
+            }
         })
         .catch(error => console.log(error));
     }
 )
 
 app.get('/get-user-posts', (req, res) => {
-    let userPosts;
-    db.collection('posts').onSnapshot(snapshot => (
-        userPosts = snapshot.docs.map(doc => doc.data())
-    ))
-    res.send(userPosts);
+    getUserPosts(req.session.user, userPosts => res.send(userPosts));
+})
+
+// POST
+
+app.post('/post', (req, res) => {
+    sendPost(req.session.user, req.body.postText, req.body.postLink)
+})
+
+app.post('/upload-avatar', (req, res) => {
+    console.log(req.body)
+    // uploadAvatar(something.something);
+})
+
+app.post('/create-account', (req, res) => {
+    createUser(req.session.user);
 })
 
 app.listen(5000, () => {
