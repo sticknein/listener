@@ -1,23 +1,19 @@
 import React, { useState } from 'react';
 import './AccountSetup.css';
 import { Button } from '@material-ui/core'
-import axios from 'axios';
 
 function CreateAccount(props) {
-    const [username, setUsername] = useState('');
-    const [displayName, setDisplayName] = useState('');
-    const [bio, setBio] = useState('');
     const [avatar, setAvatar] = useState(null)
+    const [bio, setBio] = useState('');
+    const [displayName, setDisplayName] = useState('');
+    const [username, setUsername] = useState('');
 
     const onImageChange = e => {
         const reader = new FileReader();
         let file = e.target.files[0];
         if (file) {
             reader.onload = () => {
-                if (reader.readyState === 2) {
-                    console.log(`File: ${file}`);
-                    setAvatar(file);
-                }
+                if (reader.readyState === 2) setAvatar(file);
             };
             reader.readAsDataURL(e.target.files[0]);
         }
@@ -25,26 +21,39 @@ function CreateAccount(props) {
     };
 
     const handleClick = e => {
-        axios.post('/create-account')
-            .then(console.log('Account created!'))
-            .catch(error => console.log(error));
+        let data = {
+            bio: bio,
+            displayName: displayName,
+            username: username
+        }
+
+        fetch('/create-account', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .catch(error => console.error('Error:', error))
+
         if (avatar === null) return;
         else {
-            // Something's wrong in here, attach image data to axios.post. Empty object rn
             const formData = new FormData();
-            formData.append(
-                'avatar',
-                avatar,
-                avatar.name
-            )
-            axios.post('/upload-avatar', formData)
-                .then(console.log('Avatar uploaded!'))
-                .catch(error => console.log(error)); 
-        } 
+            formData.append('file', avatar)
+
+            fetch('/upload-avatar', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => console.log(res))
+            .catch(error => console.error(error))
+        }
+        props.accountCreated(true);
     }
 
     return (
-        <div className='create-account'>
+        <div className='account-setup'>
             <h1>Please Set Up Your Account</h1>
 
             <form>
@@ -82,7 +91,8 @@ function CreateAccount(props) {
                     onChange={e => {onImageChange(e)}}
                     type='file'
                     id='avatar' name='avatar'
-                    accept='image/png, image/jpeg'
+                    accept='.png, .jpg, .jpeg'
+                    encType='multipart/form-data'
                 />
                 <p>Upload a profile picture (jpeg or png)</p>
             </form> 

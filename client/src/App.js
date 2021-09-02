@@ -28,9 +28,15 @@ function App(props) {
                             if (res === true) setHasAccount(true);
                             else setHasAccount(false);
                         })
+                        .catch(error => console.log(error));
             }))
         } 
     });
+
+    const accountCreated = input => {
+        if (input === true) setHasAccount(true);
+        else setHasAccount(false);
+    }
 
     if (user && hasAccount) {
         return (
@@ -46,9 +52,10 @@ function App(props) {
             </Router>
         )
     } else if (user && !hasAccount) {
+        // let accountCreated = hasAccount;
         return (
             <div className='app'>
-                <AccountSetup user={user} />
+                <AccountSetup user={user} accountCreated={accountCreated}/>
             </div>
         )
     } else {

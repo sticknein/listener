@@ -3,6 +3,7 @@ require('dotenv').config({ path: '../.env' });
 const path = require('path');
 const session = require('express-session');
 const bodyParser = require('body-parser');
+const multer = require('multer');
 const cryptoRandomString = require('crypto-random-string');
 const FirebaseStore = require('connect-session-firebase')(session);
 const admin = require('firebase-admin');
@@ -22,8 +23,10 @@ const {
 const serviceAccount = require(process.env.FIRESTORE_SERVICE_ACCOUNT)
 
 const Spotify = require('./spotify');
+const { create } = require('domain');
 
 const app = express();
+const upload = multer({ dest: 'uploads/' });
 
 const ref = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -49,17 +52,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // GET
 
 app.get('/get-user', (req, res) => {
-    if (!req.session.user) {
-        res.json(null);
-    }
-    else {
-        res.send(req.session.user);
-    };
+    if (!req.session.user) res.json(null);
+    else res.send(req.session.user);
 })
 
 app.get('/check-user', (req, res) => {
-    if (req.session.user && userExists(req.session.user)) res.send(true);
-    else res.send(false);
+    userExists(req.session.user, response => {
+        res.send(response);
+    });
 })
 
 app.get('/authorize', (req, res) => {
@@ -117,21 +117,24 @@ app.get('/spotify-callback', async (req, res) => {
 
 app.get('/get-user-posts', (req, res) => {
     getUserPosts(req.session.user, userPosts => res.send(userPosts));
+    // res.dingus!
 })
 
 // POST
 
 app.post('/post', (req, res) => {
     sendPost(req.session.user, req.body.postText, req.body.postLink)
+    //ya gotta send something dingus!
 })
 
-app.post('/upload-avatar', (req, res) => {
-    console.log(req.body)
-    // uploadAvatar(something.something);
+app.post('/upload-avatar', upload.single('file'), (req, res) => { 
+    uploadAvatar(req.file, req.session.user.username);
+    res.send('Avatar uploaded to the server');
 })
 
 app.post('/create-account', (req, res) => {
-    createUser(req.session.user);
+    createUser(req.session.user)
+    res.send(req.session.user)
 })
 
 app.listen(5000, () => {
