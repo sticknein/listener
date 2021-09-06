@@ -22,8 +22,13 @@ function CreateAccount(props) {
 
     const handleClick = e => {
         let data = {
+            access_token: props.user.access_token,
+            avatar: '', // Connect to Firebase Storage
             bio: bio,
+            date_joined: new Date(),
             displayName: displayName,
+            email: props.user.email,
+            last_online: new Date(),
             username: username
         }
 
@@ -34,8 +39,7 @@ function CreateAccount(props) {
             },
             body: JSON.stringify(data)
         })
-        .then(res => res.json())
-        .catch(error => console.error('Error:', error))
+        .catch(error => console.error('Error: ', error))
 
         if (avatar === null) return;
         else {
@@ -52,6 +56,8 @@ function CreateAccount(props) {
         props.accountCreated(true);
     }
 
+    console.log(props.user)
+
     return (
         <div className='account-setup'>
             <h1>Please Set Up Your Account</h1>
@@ -60,12 +66,12 @@ function CreateAccount(props) {
                 <input  
                     onChange={e => setUsername(e.target.value)}
                     value={username}
-                    placeholder={`@${props.user.username}`}
+                    placeholder={`${props.user.username}`}
                     type='text'
                     maxLength='15'
                     className='input'
                 />
-                <p>Please select your username. For example, @paulmccartney. Choose wisely, as this cannot be changed.</p>
+                <p>Please select your username. For example, paulmccartney. Choose wisely, as this cannot be changed.</p>
 
                 <input  
                     onChange={e => setDisplayName(e.target.value)}
@@ -85,7 +91,7 @@ function CreateAccount(props) {
                     maxLength='160'
                     className='bio'
                 />
-                <p>Tell us about yourself. For example, "I am the walrus". This may be changed.</p>   
+                <p>Tell us about yourself. For example, "I am the walrus." This may be changed.</p>   
 
                 <input
                     onChange={e => {onImageChange(e)}}

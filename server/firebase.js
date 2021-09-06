@@ -81,9 +81,10 @@ function uploadAvatar(file, username) {
 // Query methods
 function userExists(user, callback) {
     db.collection('users').doc(user.username)
-        .get().then(doc => {
+        .get()
+        .then(doc => {
             let exists = doc.exists;
-            callback(exists);
+            callback(exists)
             return exists;
         })
         .catch(error => console.log(error));
@@ -101,6 +102,7 @@ function updateUser(user) {
         .withConverter(userConverter)
         .update({
             access_token: user.access_token,
+            avatar: '', // GET URL FROM FIREBASE STORAGE
             bio: user.bio,
             display_name: user.display_name,
             email: user.email,

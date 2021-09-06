@@ -24,8 +24,9 @@ function App(props) {
                 .then(jsonUser => {
                     setUser(jsonUser)
                     fetch('check-user')
-                        .then(res => {
-                            if (res === true) setHasAccount(true);
+                        .then(response => response.json()) 
+                        .then(json => {
+                            if (json === true) setHasAccount(true);
                             else setHasAccount(false);
                         })
                         .catch(error => console.log(error));
@@ -52,7 +53,6 @@ function App(props) {
             </Router>
         )
     } else if (user && !hasAccount) {
-        // let accountCreated = hasAccount;
         return (
             <div className='app'>
                 <AccountSetup user={user} accountCreated={accountCreated}/>
