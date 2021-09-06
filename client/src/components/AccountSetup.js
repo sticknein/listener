@@ -56,8 +56,6 @@ function CreateAccount(props) {
         props.accountCreated(true);
     }
 
-    console.log(props.user)
-
     return (
         <div className='account-setup'>
             <h1>Please Set Up Your Account</h1>

@@ -23,7 +23,7 @@ const {
 const serviceAccount = require(process.env.FIRESTORE_SERVICE_ACCOUNT)
 
 const Spotify = require('./spotify');
-const { create } = require('domain');
+// const { create } = require('domain');
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
@@ -87,7 +87,7 @@ app.get('/spotify-callback', async (req, res) => {
 
     Spotify.getMe()
         .then(userResults => {
-            const uid = userResults.body.id;
+            console.log('Spotify results: ', userResults)
             const username = userResults.body.display_name;
             const email = userResults.body.email;
             const prof_pic = userResults.body.images;
@@ -99,8 +99,7 @@ app.get('/spotify-callback', async (req, res) => {
                 display_name = username, 
                 email,
                 last_online = today,
-                prof_pic,  
-                uid, 
+                prof_pic, 
                 username
             );
             req.session.user = user;
@@ -108,6 +107,7 @@ app.get('/spotify-callback', async (req, res) => {
                 updateUser(user);
                 res.redirect('http://localhost:3000/')
             } else {
+                console.log(user)
                 res.redirect('http://localhost:3000/account-setup')
             }
         })
