@@ -11,6 +11,7 @@ const admin = require('firebase-admin');
 const { 
     createUser,
     db, 
+    getUser,
     getUserPosts,
     sendPost,
     storage,
@@ -18,7 +19,7 @@ const {
     uploadAvatar, 
     User, 
     userConverter,
-    userExists 
+    userExists
 } = require('./firebase');
 const serviceAccount = require(process.env.FIRESTORE_SERVICE_ACCOUNT)
 
@@ -51,17 +52,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // GET
 
-app.get('/get-user', (req, res) => {
-    if (!req.session.user) res.json(null);
-    else res.send(req.session.user);
-})
-
-app.get('/check-user', (req, res) => {
-    userExists(req.session.user, response => {
-        res.send(response);
-    });
-})
-
 app.get('/authorize', (req, res) => {
     scopes = [
         'user-read-recently-played', 
@@ -87,33 +77,52 @@ app.get('/spotify-callback', async (req, res) => {
 
     Spotify.getMe()
         .then(userResults => {
-            console.log('Spotify results: ', userResults)
             const username = userResults.body.display_name;
             const email = userResults.body.email;
             const prof_pic = userResults.body.images;
             const today = new Date();
             const user = new User(
                 access_token,
+                avatar = '',
                 bio = '',
                 date_joined = today,
                 display_name = username, 
                 email,
                 last_online = today,
-                prof_pic, 
                 username
             );
             req.session.user = user;
-            if (userExists(user)) {
-                updateUser(user);
-                res.redirect('http://localhost:3000/')
-            } else {
-                console.log(user)
-                res.redirect('http://localhost:3000/account-setup')
-            }
+
+            let exists;
+
+            getUser(user).then(response => {
+                exists = response;
+                if (exists) {
+                    updateUser(user);
+                    res.redirect('http://localhost:3000/')
+                } else {
+                    res.redirect('http://localhost:3000/account-setup');
+                }
+            })
         })
         .catch(error => console.log(error));
     }
-)
+);
+
+app.get('/get-user', (req, res) => {
+    if (!req.session.user) {
+        return res.json(null); 
+    }
+    else {
+        return res.json(req.session.user); 
+    }
+})
+
+app.get('/check-user', (req, res) => {
+    return userExists(req.session.user, response => {
+        res.send(response);
+    });
+})
 
 app.get('/get-user-posts', (req, res) => {
     getUserPosts(req.session.user, userPosts => res.send(userPosts));

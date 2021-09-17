@@ -16,7 +16,7 @@ function Feed(props) {
     return (
         <div className='feed'>
             <div className='feed-header'>
-                <h2>Welcome to listener, {props.user.display_name}.</h2>  
+                <h2>Welcome to listener, {props.user.username}.</h2>  
             </div>
             
             <PostBox user={props.user}/>

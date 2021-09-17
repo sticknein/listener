@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@material-ui/core';
 import HearingIcon from '@material-ui/icons/Hearing';
 import './Login.css';
 
-function Login() {
+function Login(props) {
     const handleLoginClick = e => {
         fetch('/authorize')
             .then(res => res.json())
-            .then(json => window.location.assign(json))
+            .then(json => {
+                window.location.assign(json);
+            })
             .catch(error => console.log(error))
     };
 

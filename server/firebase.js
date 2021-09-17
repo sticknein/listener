@@ -76,18 +76,28 @@ function uploadAvatar(file, username) {
             console.log('File uploaded!');
         })
     });
+    avatarImagesRef.getDownloadURL()
+        .then(url => {
+            db.collection('users').doc(username).set({
+                avatar: url
+            })
+        })
 }
 
-// Query methods
-function userExists(user, callback) {
-    db.collection('users').doc(user.username)
-        .get()
-        .then(doc => {
-            let exists = doc.exists;
-            callback(exists)
-            return exists;
-        })
-        .catch(error => console.log(error));
+// user functions
+
+function getUser(user) {
+    return db.collection('users').doc(user.username)
+            .get()
+            .then(doc => {
+                if (doc.exists) {
+                    return doc
+                }
+                else {
+                    return null;
+                }
+            })
+            .catch(error => console.log(error)); // callback(error)
 }
 
 function createUser(user) {
@@ -107,11 +117,20 @@ function updateUser(user) {
             display_name: user.display_name,
             email: user.email,
             last_online: user.last_online,
-            prof_pic: user.prof_pic,
         });
-    
     console.log(`Updated user: ${user.username}`);
 };
+
+function userExists(user, callback) {
+    return db.collection('users').doc(user.username)
+        .get().then(doc => {
+            let exists = doc.exists;
+            callback(exists)
+            return exists;
+        })
+}
+
+// userPost functions
 
 function sendPost(user, postText, postLink) {
     db.collection('users').doc(user.username).collection('posts').add({
@@ -135,6 +154,7 @@ function getUserPosts(user, callback) {
 module.exports = { 
     createUser,
     db,
+    getUser,
     getUserPosts,
     sendPost,
     updateUser,

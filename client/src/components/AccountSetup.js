@@ -5,8 +5,8 @@ import { Button } from '@material-ui/core'
 function CreateAccount(props) {
     const [avatar, setAvatar] = useState(null)
     const [bio, setBio] = useState('');
-    const [displayName, setDisplayName] = useState('');
-    const [username, setUsername] = useState('');
+    const [displayName, setDisplayName] = useState(props.user.display_name);
+    const [username, setUsername] = useState(props.user.username);
 
     const onImageChange = e => {
         const reader = new FileReader();
@@ -39,21 +39,23 @@ function CreateAccount(props) {
             },
             body: JSON.stringify(data)
         })
-        .catch(error => console.error('Error: ', error))
+        .then(() => {
+            if (avatar === null) return;
+            else {
+                const formData = new FormData();
+                formData.append('file', avatar)
 
-        if (avatar === null) return;
-        else {
-            const formData = new FormData();
-            formData.append('file', avatar)
-
-            fetch('/upload-avatar', {
-                method: 'POST',
-                body: formData
-            })
-            .then(res => console.log(res))
-            .catch(error => console.error(error))
+                fetch('/upload-avatar', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => console.log(res))
+                .catch(error => console.error(error))
         }
         props.accountCreated(true);
+        return  window.location.assign('/');
+        })
+        .catch(error => console.error('Error: ', error));        
     }
 
     return (
