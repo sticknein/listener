@@ -5,13 +5,20 @@ import Post from './Post';
 import FlipMove from 'react-flip-move';
 
 function Feed(props) {
-    const [posts, setPosts] = useState([]);
+    const [posts, setPosts] = useState(null);
 
     useEffect(() => {
-        fetch('/get-user-posts')
-            .then(posts => posts.json())
-            .then(jsonPosts => setPosts(jsonPosts))
-    }, []);
+        if (!posts) {
+            fetch('/get-user-posts')
+                .then(response => response.json())
+                .then(posts => setPosts(posts))
+                .catch(error => console.log(error));
+        };
+    });
+
+    const addPost = post => {
+        setPosts(posts => [...posts, post]);
+    }
 
     return (
         <div className='feed'>
@@ -19,22 +26,24 @@ function Feed(props) {
                 <h2>Welcome to listener, {props.user.username}.</h2>  
             </div>
             
-            <PostBox user={props.user}/>
+            <PostBox user={props.user} addPost={addPost} />
 
+            {!posts && 
+                <h3 className='no-posts'>No posts yet!</h3>
+            }
+
+            {posts &&
             <FlipMove>
                 {posts.map(post => (
                     <Post  
-                        key={post.id}
-                        displayName={post.displayName}
-                        username={post.username}
-                        artist={post.artist}
-                        text={post.text}
-                        avatar={post.avatar}
                         link={post.link}
+                        text={post.text}
                         timestamp={post.timestamp}
+                        user={props.user}
                     /> 
                 ))}    
             </FlipMove>
+            }   
         </div>
     )
 }

@@ -3,8 +3,8 @@ import './AccountSetup.css';
 import { Button } from '@material-ui/core'
 
 function CreateAccount(props) {
-    const [avatar, setAvatar] = useState(null)
-    const [bio, setBio] = useState('');
+    const [avatar, setAvatar] = useState(null);
+    const [bio, setBio] = useState('I\'m a bio! Weeeeeee!');
     const [displayName, setDisplayName] = useState(props.user.display_name);
     const [username, setUsername] = useState(props.user.username);
 
@@ -21,42 +21,73 @@ function CreateAccount(props) {
     };
 
     const handleClick = e => {
-        let data = {
-            access_token: props.user.access_token,
-            avatar: '', // Connect to Firebase Storage
-            bio: bio,
-            date_joined: new Date(),
-            displayName: displayName,
-            email: props.user.email,
-            last_online: new Date(),
-            username: username
-        }
+        if (avatar) {
+            const formData = new FormData();
+            formData.append('file', avatar);
 
-        fetch('/create-account', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(() => {
-            if (avatar === null) return;
-            else {
-                const formData = new FormData();
-                formData.append('file', avatar)
-
-                fetch('/upload-avatar', {
+            fetch('/upload-avatar', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => { // the problem is here
+                const url = response.json();
+                return url;
+            })
+            .then(url => {
+                let data = {
+                    access_token: props.user.access_token,
+                    avatar: url,
+                    bio: bio,
+                    date_joined: new Date(),
+                    display_name: displayName,
+                    email: props.user.email,
+                    last_online: new Date(),
+                    username: username
+                };
+                return data;
+            })
+            .then(userData => {
+                fetch('/create-account', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
                 })
-                .then(res => console.log(res))
-                .catch(error => console.error(error))
+                .then(user => {
+                    
+                    props.accountCreated(true);
+                    return window.location.assign('/');
+                })
+            })
+            .catch(error => console.log(error));
         }
-        props.accountCreated(true);
-        return  window.location.assign('/');
-        })
-        .catch(error => console.error('Error: ', error));        
-    }
+        else {
+            let data = {
+                access_token: props.user.access_token,
+                avatar: '',
+                bio: bio,
+                date_joined: new Date(),
+                display_name: displayName,
+                email: props.user.email,
+                last_online: new Date(),
+                username: username
+            };
+        
+            fetch('/create-account', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(user => {
+                props.accountCreated(true);
+                return window.location.assign('/');
+            })
+        }
+    };
+    
 
     return (
         <div className='account-setup'>
@@ -113,6 +144,6 @@ function CreateAccount(props) {
             </Button>
         </div>
     )
-}
+};
 
 export default CreateAccount;

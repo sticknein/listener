@@ -1,48 +1,39 @@
 import { Avatar } from '@material-ui/core';
-import React, { forwardRef } from 'react';
+import React, { useState } from 'react';
 import './Post.css';
-import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
+import dayjs from 'dayjs';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import RepeatIcon from '@material-ui/icons/Repeat';
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import PublishIcon from '@material-ui/icons/Publish';
-import dayjs from 'dayjs';
 
 var relativeTime = require('dayjs/plugin/relativeTime')
 dayjs.extend(relativeTime)
 
-const Post = forwardRef(({
-    displayName,
-    username,
-    artist,
-    text,
-    link,
-    avatar,
-    timestamp
-}, ref) => {
-
+function Post(props) {
+        
     return (
-        <div className='post' ref={ref}>
+        <div className='post'>
             <div className='post_avatar'>
-                <Avatar src={avatar} />
+                <Avatar src={props.user.avatar} />
             </div>
             <div className='post_body'>
                 <div className='post_header'>
                     <div className='post_headerText'>
                         <h3>
-                            {displayName}{''} 
+                            {props.user.display_name}{''} 
                             <span className='post_headerSpecial'>
-                                {artist && <VerifiedUserIcon className='post_badge' />} @{username}
+                                @{props.user.username}
                             </span>
                             <span> • </span>
-                            <span id='timestamp'>{dayjs(timestamp).fromNow()}</span>
+                            <span id='timestamp'>{dayjs(props.timestamp).fromNow()}</span>
                         </h3>
                     </div>
                     <div className='post_headerDescription'>
-                        <p>{text}</p>
+                        <p>{props.text}</p>
                     </div>
                 </div>
-                <p>***Spotify link Card will go here***</p>
+                {/* <p>***Spotify link Card will go here***</p> */}
                 <div className='post_footer'>
                     <ChatBubbleOutlineIcon fontSize='small' />
                     <RepeatIcon fontSize='small' />
@@ -52,6 +43,6 @@ const Post = forwardRef(({
             </div>
         </div>
     )
-});
+};
 
 export default Post;

@@ -30,3 +30,8 @@
     font-weight: 900;
     margin-left: 0;
 }
+
+.no-posts {
+    text-align: center;
+    font-weight: 400;
+}

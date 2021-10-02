@@ -24,7 +24,7 @@ const {
 const serviceAccount = require(process.env.FIRESTORE_SERVICE_ACCOUNT)
 
 const Spotify = require('./spotify');
-// const { create } = require('domain');
+const { nextTick } = require('process');
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
@@ -50,7 +50,7 @@ app.use(express.static(path.join(__dirname, '..', 'client')));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// GET
+// SPOTIFY AUTH
 
 app.get('/authorize', (req, res) => {
     scopes = [
@@ -81,6 +81,7 @@ app.get('/spotify-callback', async (req, res) => {
             const email = userResults.body.email;
             const prof_pic = userResults.body.images;
             const today = new Date();
+            
             const user = new User(
                 access_token,
                 avatar = '',
@@ -91,14 +92,20 @@ app.get('/spotify-callback', async (req, res) => {
                 last_online = today,
                 username
             );
+
             req.session.user = user;
 
-            let exists;
-
-            getUser(user).then(response => {
-                exists = response;
+            getUser(user.username).then(response => {
+                let exists = response;
                 if (exists) {
-                    updateUser(user);
+                    user.avatar = response.avatar;
+                    user.bio = response.bio;
+                    user.date_joined = response.date_joined;
+                    user.email = response.email;
+                    user.username = response.username;
+
+                    // updateUser(user);
+
                     res.redirect('http://localhost:3000/')
                 } else {
                     res.redirect('http://localhost:3000/account-setup');
@@ -109,14 +116,7 @@ app.get('/spotify-callback', async (req, res) => {
     }
 );
 
-app.get('/get-user', (req, res) => {
-    if (!req.session.user) {
-        return res.json(null); 
-    }
-    else {
-        return res.json(req.session.user); 
-    }
-})
+// GET
 
 app.get('/check-user', (req, res) => {
     return userExists(req.session.user, response => {
@@ -124,26 +124,41 @@ app.get('/check-user', (req, res) => {
     });
 })
 
+app.get('/get-user', (req, res) => {
+    if (!req.session.user) {
+        res.json(null); 
+    }
+    else {
+        return res.json(req.session.user); 
+    }
+})
+
 app.get('/get-user-posts', (req, res) => {
-    getUserPosts(req.session.user, userPosts => res.send(userPosts));
-    // res.dingus!
+    getUserPosts(req.session.user, response => {
+        res.send(response); // error here
+    });
+    
 })
 
 // POST
 
-app.post('/post', (req, res) => {
-    sendPost(req.session.user, req.body.postText, req.body.postLink)
-    //ya gotta send something dingus!
+app.post('/create-account', (req, res) => {
+    createUser(req.body)
+    req.session.user = req.body;
+    res.send(req.body)
 })
+
+app.post('/send-post', (req, res) => {
+    sendPost(req.session.user, req.body.postText, req.body.postLink, response => {
+        res.send(response)
+    });
+});
 
 app.post('/upload-avatar', upload.single('file'), (req, res) => { 
-    uploadAvatar(req.file, req.session.user.username);
-    res.send('Avatar uploaded to the server');
-})
-
-app.post('/create-account', (req, res) => {
-    createUser(req.session.user)
-    res.send(req.session.user)
+    return uploadAvatar(req.file, req.session.user.username, response => {
+        const url = response;
+        res.json(url);
+    })
 })
 
 app.listen(5000, () => {

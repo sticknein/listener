@@ -68,30 +68,34 @@ const userConverter = {
 };
 
 // Avatar storage
-function uploadAvatar(file, username) {
+function uploadAvatar(file, username, callback) {
     let fileType = file.mimetype.replace('image/', '');
     const avatarImagesRef = storageRef.child(`images/${username}/${username}-avatar.${fileType}`);
+
     fs.readFile(file.path, (error, data) => {
         avatarImagesRef.put(data).then(snapshot => {
             console.log('File uploaded!');
         })
+        .catch(error => console.log(error));
     });
+
     avatarImagesRef.getDownloadURL()
-        .then(url => {
-            db.collection('users').doc(username).set({
-                avatar: url
-            })
+        .then(link => {
+            const url = link;
+            callback(url)
+            return url;
         })
+        .catch(error => console.log(error));
 }
 
 // user functions
 
-function getUser(user) {
-    return db.collection('users').doc(user.username)
+function getUser(username) {
+    return db.collection('users').doc(username)
             .get()
             .then(doc => {
                 if (doc.exists) {
-                    return doc
+                    return doc.data()
                 }
                 else {
                     return null;
@@ -112,7 +116,7 @@ function updateUser(user) {
         .withConverter(userConverter)
         .update({
             access_token: user.access_token,
-            avatar: '', // GET URL FROM FIREBASE STORAGE
+            avatar: user.avatar, // problem here
             bio: user.bio,
             display_name: user.display_name,
             email: user.email,
@@ -132,22 +136,22 @@ function userExists(user, callback) {
 
 // userPost functions
 
-function sendPost(user, postText, postLink) {
+function sendPost(user, postText, postLink, callback) {
     db.collection('users').doc(user.username).collection('posts').add({
-        display_name: user.display_name, 
-        username: user.username,  
+        link: postLink,  
         text: postText, 
-        link: postLink, 
-        avatar: user.prof_pic, 
         timestamp: new Date().toString()
     })
-}
+    .then(post => {
+        console.log(post);
+        callback(post);
+    })
+} // callback, but do it as a promise yeeeeeeeeeeee!!!!!
 
 function getUserPosts(user, callback) {
     db.collection('users').doc(user.username).collection('posts').onSnapshot(snapshot => {
         let userPosts = snapshot.docs.map(doc => doc.data());
-        callback(userPosts)  
-        return userPosts;
+        callback(userPosts)
     })
 }
 

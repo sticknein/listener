@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Profile.css';
 import cover_photo from '../placeholder_data/cover_photo.jpeg';
-import logo from '../placeholder_data/prof_pic.jpg';
 import FlipMove from 'react-flip-move';
 import Post from './Post';
 
@@ -18,16 +17,16 @@ function Profile(props) {
     return (
         <div className='profile'>
             <div className='header-photo'>
-                <img src={cover_photo} id='cover-photo' alt='Cover photo'/>
+                <img src={cover_photo} id='cover-photo' alt='Cover photo'/> {/* add cover photo input in AccountSetup.js */}
             </div>
             <div className='sub-header'>
                 <div id='prof-pic-row'>
-                    <img src={logo} id='prof-pic' alt='Profile picture' />
+                    <img src={props.user.avatar} id='prof-pic' alt='Profile picture' />
                 </div>
                 <div id='name-row'>
                     <h1>Holophone</h1>
                     <h2>@holophone</h2>
-                    <p className='bio'>Keepin' it holophonic since 1990</p>
+                    <p className='bio'>{props.user.bio}</p>
                 </div>
             </div>
 

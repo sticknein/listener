@@ -1,38 +1,38 @@
 import React, { useState } from 'react';
 import './PostBox.css';
 import { Avatar, Button } from '@material-ui/core';
-import axios from 'axios';
 
 function PostBox(props) {
     const [postText, setPostText] = useState('');
     const [postLink, setPostLink] = useState('');
 
     const sendPost = e => {
-        e.preventDefault();
-
         const postObject = {
-            user: props.user,
             postText: postText,
             postLink: postLink
         }
 
-        axios.post('/post', postObject)
-            .then(res => {
-                console.log('Post successfully added!')
-            })
-            .catch(error => {
-                console.log(error);
-            });
+        fetch('/send-post', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },  
+            body: JSON.stringify(postObject)
+        })
+        .then(post => {
+            props.getUserPosts()
+        })
+        .catch(error => console.log('Error: ', error));
 
         setPostText('');
         setPostLink('');
-    }
+    };
 
     return (
         <div className='postBox'>
             <form>
                 <div className='postBox-input'>
-                    <Avatar src={props.user.prof_pic} />
+                    <Avatar src={props.user.avatar} />
                     <input 
                         onChange={e => setPostText(e.target.value)}
                         value={postText}

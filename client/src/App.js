@@ -21,37 +21,26 @@ function App(props) {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-            console.log(1);
             fetch('/get-user')
                 .then(response => {
-                    console.log(2);
                     const data = response.json();
                     return data;
                 })
                 .then(json => {
-                    console.log(3);
-                    console.log(json);
                     if (json !== null) {
-                        console.log(4);
                         setUser(json);
                         fetch('/check-user')
                             .then(exists => {
-                                console.log(5)
                                 const x = exists.json();
-                                console.log(x)
                                 return x;
                             })
-                            .then(ex => {
-                                console.log(6)
-                                console.log(ex)
-                                if (ex) {
-                                    console.log(7)
+                            .then(y => {
+                                if (y) {
                                     setHasAccount(true);
                                     setIsLoggedIn(true);
                                     setIsLoading(false);
                                 }
                                 else {
-                                    console.log(8)
                                     setHasAccount(false);
                                     setIsLoggedIn(true);
                                     setIsLoading(false);
@@ -59,7 +48,6 @@ function App(props) {
                             })
                     }
                     else {
-                        console.log(9);
                         setHasAccount(false);
                         setIsLoggedIn(false);
                         setIsLoading(false);
@@ -71,7 +59,6 @@ function App(props) {
     const accountCreated = input => {
         if (input === true) {
             setHasAccount(true);
-            // window.location.assign('/');
         }
         else setHasAccount(false);
     }
@@ -86,14 +73,14 @@ function App(props) {
 
     if (!isLoggedIn) {
         return (
-            <div className='app'>
+            <div className='login'>
                 <Login />
             </div>
         )
     }
     else if (isLoggedIn && !hasAccount) {
         return (
-            <div className='app'>
+            <div className='setup'>
                 <AccountSetup user={user} accountCreated={accountCreated} />
             </div>
         )
