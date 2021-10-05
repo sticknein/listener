@@ -116,7 +116,7 @@ function updateUser(user) {
         .withConverter(userConverter)
         .update({
             access_token: user.access_token,
-            avatar: user.avatar, // problem here
+            avatar: user.avatar,
             bio: user.bio,
             display_name: user.display_name,
             email: user.email,
@@ -136,21 +136,20 @@ function userExists(user, callback) {
 
 // userPost functions
 
-function sendPost(user, postText, postLink, callback) {
+function sendPost(user, text, link, callback) {
     db.collection('users').doc(user.username).collection('posts').add({
-        link: postLink,  
-        text: postText, 
+        link: link,  
+        text: text, 
         timestamp: new Date().toString()
     })
     .then(post => {
-        console.log(post);
         callback(post);
     })
-} // callback, but do it as a promise yeeeeeeeeeeee!!!!!
+}
 
 function getUserPosts(user, callback) {
-    db.collection('users').doc(user.username).collection('posts').onSnapshot(snapshot => {
-        let userPosts = snapshot.docs.map(doc => doc.data());
+    db.collection('users').doc(user.username).collection('posts').get().then(posts => {
+        let userPosts = posts.docs.map(doc => doc.data());
         callback(userPosts)
     })
 }

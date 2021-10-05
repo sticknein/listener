@@ -24,7 +24,7 @@ const {
 const serviceAccount = require(process.env.FIRESTORE_SERVICE_ACCOUNT)
 
 const Spotify = require('./spotify');
-const { nextTick } = require('process');
+// const { nextTick } = require('process');
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
@@ -104,7 +104,6 @@ app.get('/spotify-callback', async (req, res) => {
                     user.email = response.email;
                     user.username = response.username;
 
-                    // updateUser(user);
 
                     res.redirect('http://localhost:3000/')
                 } else {
@@ -120,13 +119,13 @@ app.get('/spotify-callback', async (req, res) => {
 
 app.get('/check-user', (req, res) => {
     return userExists(req.session.user, response => {
-        res.send(response);
+        return res.send(response);
     });
 })
 
 app.get('/get-user', (req, res) => {
     if (!req.session.user) {
-        res.json(null); 
+        return res.json(null); 
     }
     else {
         return res.json(req.session.user); 
@@ -134,8 +133,8 @@ app.get('/get-user', (req, res) => {
 })
 
 app.get('/get-user-posts', (req, res) => {
-    getUserPosts(req.session.user, response => {
-        res.send(response); // error here
+    return getUserPosts(req.session.user, response => {
+        return res.send(response);
     });
     
 })
@@ -149,8 +148,8 @@ app.post('/create-account', (req, res) => {
 })
 
 app.post('/send-post', (req, res) => {
-    sendPost(req.session.user, req.body.postText, req.body.postLink, response => {
-        res.send(response)
+    return sendPost(req.session.user, req.body.text, req.body.link, response => {
+        return res.send(response)
     });
 });
 

@@ -28,7 +28,7 @@ function Sidebar(props) {
                        <SidebarOption Icon={PermIdentityIcon} text='Profile' /> 
                     </Link>
 
-                    <Button variant='outlined' className='sidebar-post' fullWidth>Post</Button>
+                    {/* <Button variant='outlined' className='sidebar-post' fullWidth>Post</Button> */}
                 </div>
         )
 }

@@ -3,13 +3,13 @@ import './PostBox.css';
 import { Avatar, Button } from '@material-ui/core';
 
 function PostBox(props) {
-    const [postText, setPostText] = useState('');
-    const [postLink, setPostLink] = useState('');
+    const [text, setText] = useState('');
+    const [link, setLink] = useState('');
 
     const sendPost = e => {
-        const postObject = {
-            postText: postText,
-            postLink: postLink
+        const post = {
+            text: text,
+            link: link
         }
 
         fetch('/send-post', {
@@ -17,37 +17,48 @@ function PostBox(props) {
             headers: {
                 'Content-Type': 'application/json'
             },  
-            body: JSON.stringify(postObject)
+            body: JSON.stringify(post)
         })
-        .then(post => {
+        .then(() => {
             props.getUserPosts()
         })
         .catch(error => console.log('Error: ', error));
 
-        setPostText('');
-        setPostLink('');
+        setText('');
+        setLink('');
     };
 
+    const handleKeyPress = e => {
+        if (e.key === 'Enter') {
+            sendPost();
+        }
+    };
+    
     return (
         <div className='postBox'>
             <form>
                 <div className='postBox-input'>
                     <Avatar src={props.user.avatar} />
                     <input 
-                        onChange={e => setPostText(e.target.value)}
-                        value={postText}
+                        onChange={e => setText(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        value={text}
                         placeholder={'What are you listening to?'} 
                         type='text' 
                     />
                 </div>
                 <input 
-                    value={postLink}
-                    onChange={e => setPostLink(e.target.value)}
+                    value={link}
+                    onChange={e => setLink(e.target.value)}
                     className='postBox-urlInput' 
                     placeholder='Optional: Enter Spotify URL' 
                     type='text' 
                 />
-                <Button onClick={sendPost} className='postBox-postButton'>Post</Button>
+                <Button 
+                    className='postBox-postButton'
+                    onClick={sendPost} 
+                >Post
+                </Button>
             </form>
         </div>
     )

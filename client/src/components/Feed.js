@@ -16,8 +16,11 @@ function Feed(props) {
         };
     });
 
-    const addPost = post => {
-        setPosts(posts => [...posts, post]);
+    const getUserPosts = post => {
+        fetch('/get-user-posts')
+            .then(response => response.json())
+            .then(posts => setPosts(posts))
+            .catch(error => console.log(error));
     }
 
     return (
@@ -26,7 +29,7 @@ function Feed(props) {
                 <h2>Welcome to listener, {props.user.username}.</h2>  
             </div>
             
-            <PostBox user={props.user} addPost={addPost} />
+            <PostBox user={props.user} getUserPosts={getUserPosts} />
 
             {!posts && 
                 <h3 className='no-posts'>No posts yet!</h3>
@@ -34,7 +37,9 @@ function Feed(props) {
 
             {posts &&
             <FlipMove>
-                {posts.map(post => (
+                {posts.sort((x, y) => {
+                    return x.timestamp - y.timestamp
+                }).map(post => (
                     <Post  
                         link={post.link}
                         text={post.text}
