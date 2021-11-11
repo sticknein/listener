@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import './AccountSetup.css';
+import './EditAccount.css';
 import { Button } from '@material-ui/core'
 
-function CreateAccount(props) {
+function EditAccount(props) {
     const [avatar, setAvatar] = useState(null);
     const [bio, setBio] = useState('I\'m a bio! Weeeeeee!');
     const [displayName, setDisplayName] = useState(props.user.display_name);
@@ -13,7 +13,9 @@ function CreateAccount(props) {
         let file = e.target.files[0];
         if (file) {
             reader.onload = () => {
-                if (reader.readyState === 2) setAvatar(file);
+                if (reader.readyState === 2) {
+                    setAvatar(file);
+                }
             };
             reader.readAsDataURL(e.target.files[0]);
         }
@@ -21,88 +23,97 @@ function CreateAccount(props) {
     };
 
     const handleClick = e => {
-        if (avatar) {
+        let userObject = {};
+        console.log(1)
+        userObject.access_token = props.user.access_token;
+        userObject.avatar = props.user.avatar;
+        userObject.bio = bio;
+        userObject.date_joined = props.user.date_joined;
+        userObject.display_name = displayName;
+        userObject.email = props.user.email;
+        userObject.has_account = true;
+        userObject.last_online = props.user.last_online;
+        userObject.username = username;
+        
+        console.log(2)
+
+        // const editUser = () => {
+        //     console.log('EditAccount.js editUser function triggered')
+        //     fetch('/edit-user', {
+        //         method: 'POST',
+        //         body: user
+        //     })
+        //     .then(() => {
+        //         console.log(`Edited user @${username}`);
+        //     })
+        //     .catch(error => console.log(error));
+        // }
+
+        if (avatar) { 
+            console.log(4)
             const formData = new FormData();
             formData.append('file', avatar);
-
+            console.log(5)
+            e.preventDefault();
             fetch('/upload-avatar', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => { // the problem is here
-                const url = response.json();
-                return url;
+            .then(response => {
+                return response.json()
             })
             .then(url => {
-                let data = {
-                    access_token: props.user.access_token,
-                    avatar: url,
-                    bio: bio,
-                    date_joined: new Date(),
-                    display_name: displayName,
-                    email: props.user.email,
-                    last_online: new Date(),
-                    username: username
-                };
-                return data;
-            })
-            .then(userData => {
-                fetch('/create-account', {
+                userObject.avatar = url;
+
+                const userFetchBody = JSON.stringify(userObject);
+
+                e.preventDefault()
+                fetch('/edit-user', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(userData)
+                    body: userFetchBody
                 })
-                .then(user => {
-                    
-                    props.accountCreated(true);
+                .then(() => {
+                    console.log(`Edited user @${username}`);
                     return window.location.assign('/');
                 })
+                .catch(error => console.log(error));
             })
             .catch(error => console.log(error));
         }
         else {
-            let data = {
-                access_token: props.user.access_token,
-                avatar: '',
-                bio: bio,
-                date_joined: new Date(),
-                display_name: displayName,
-                email: props.user.email,
-                last_online: new Date(),
-                username: username
-            };
-        
-            fetch('/create-account', {
+            const userFetchBody = JSON.stringify(userObject);
+
+            e.preventDefault();
+            
+            fetch('/edit-user', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
+                body: userObject
             })
-            .then(user => {
-                props.accountCreated(true);
+            .then(() => {
+                console.log(`Edited user @${username}`);
                 return window.location.assign('/');
             })
+            .catch(error => console.log(error));
         }
     };
-    
 
     return (
-        <div className='account-setup'>
-            <h1>Please Set Up Your Account</h1>
+        <div className='edit-account'>
+            <h1>Edit Account</h1>
 
-            <form>
+            <form onSubmit={e => handleClick(e)}>
                 <input  
                     onChange={e => setUsername(e.target.value)}
                     value={username}
-                    placeholder={`${props.user.username}`}
+                    placeholder={props.user.username}
                     type='text'
                     maxLength='15'
                     className='input'
                 />
-                <p>Please select your username. For example, paulmccartney. Choose wisely, as this cannot be changed.</p>
+                <p>Please select your username. For example, paulmccartney.</p>
 
                 <input  
                     onChange={e => setDisplayName(e.target.value)}
@@ -112,7 +123,7 @@ function CreateAccount(props) {
                     maxLength='50'
                     className='input'
                 />
-                <p>Please select your display name. For example, Paul McCartney. This may be changed.</p>    
+                <p>Please select your display name. For example, Paul McCartney.</p>    
 
                 <textarea  
                     onChange={e => setBio(e.target.value)}
@@ -122,7 +133,7 @@ function CreateAccount(props) {
                     maxLength='160'
                     className='bio'
                 />
-                <p>Tell us about yourself. For example, "I am the walrus." This may be changed.</p>   
+                <p>Tell us about yourself. For example, "I am the walrus."</p>   
 
                 <input
                     onChange={e => {onImageChange(e)}}
@@ -132,18 +143,15 @@ function CreateAccount(props) {
                     encType='multipart/form-data'
                 />
                 <p>Upload a profile picture (jpeg or png)</p>
-            </form> 
-
-            <Button 
+                <Button 
                 id='loginButton' 
-                onClick={e => {
-                    handleClick()
-                }}
-            >
+                type='submit'
+                >
                 Create Account
-            </Button>
+                </Button>
+            </form> 
         </div>
     )
 };
 
-export default CreateAccount;
+export default EditAccount;

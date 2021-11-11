@@ -7,7 +7,7 @@ import {
 
 import './App.css';
 import Activity from './components/Activity';
-import AccountSetup from './components/AccountSetup';
+import EditAccount from './components/EditAccount';
 import Feed from './components/Feed';
 import Loading from './components/Loading';
 import Login from './components/Login';
@@ -15,53 +15,29 @@ import Profile from './components/Profile';
 import Sidebar from './components/Sidebar';
 
 function App(props) {
-    const [hasAccount, setHasAccount] = useState(true);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-            fetch('/get-user')
-                .then(response => {
-                    const data = response.json();
-                    return data;
-                })
-                .then(json => {
-                    if (json !== null) {
-                        setUser(json);
-                        fetch('/check-user')
-                            .then(exists => {
-                                const x = exists.json();
-                                return x;
-                            })
-                            .then(y => {
-                                if (y) {
-                                    setHasAccount(true);
-                                    setIsLoggedIn(true);
-                                    setIsLoading(false);
-                                }
-                                else {
-                                    setHasAccount(false);
-                                    setIsLoggedIn(true);
-                                    setIsLoading(false);
-                                }
-                            })
-                    }
-                    else {
-                        setHasAccount(false);
-                        setIsLoggedIn(false);
-                        setIsLoading(false);
-                    }
-                })
-                .catch(error => console.log(error))
+        fetch('/get-user')
+            .then(response => { 
+                const data = response.json();
+                return data;
+            })
+            .then(userObject => {
+                if (userObject !== null) {
+                    setUser(userObject);
+                    setIsLoggedIn(true);
+                    setIsLoading(false);
+                }
+                else {
+                    setIsLoggedIn(false);
+                    setIsLoading(false);
+                }
+            })
+            .catch(error => console.log(error));
     }, [])
-
-    const accountCreated = input => {
-        if (input === true) {
-            setHasAccount(true);
-        }
-        else setHasAccount(false);
-    }
 
     if (isLoading) {
         return (
@@ -78,14 +54,14 @@ function App(props) {
             </div>
         )
     }
-    else if (isLoggedIn && !hasAccount) {
+    else if (isLoggedIn && !user.has_account) {
         return (
             <div className='setup'>
-                <AccountSetup user={user} accountCreated={accountCreated} />
+                <EditAccount user={user} />
             </div>
         )
     }
-    else if (isLoggedIn && hasAccount) {
+    else {
         return (
             <Router>
                 <div className='app'>

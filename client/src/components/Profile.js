@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './Profile.css';
-import cover_photo from '../placeholder_data/cover_photo.jpeg';
 import FlipMove from 'react-flip-move';
 import Post from './Post';
 
@@ -11,21 +10,20 @@ function Profile(props) {
     useEffect(() => {
         fetch('/get-user-posts')
             .then(posts => posts.json())
-            .then(jsonPosts => setPosts(jsonPosts))
+            .then(jsonPosts => {
+                setPosts(jsonPosts)
+            })
     }, []);
 
     return (
         <div className='profile'>
-            <div className='header-photo'>
-                <img src={cover_photo} id='cover-photo' alt='Cover photo'/> {/* add cover photo input in AccountSetup.js */}
-            </div>
             <div className='sub-header'>
                 <div id='prof-pic-row'>
                     <img src={props.user.avatar} id='prof-pic' alt='Profile picture' />
                 </div>
                 <div id='name-row'>
-                    <h1>Holophone</h1>
-                    <h2>@holophone</h2>
+                    <h1>{props.user.display_name}</h1>
+                    <h2>@{props.user.username}</h2>
                     <p className='bio'>{props.user.bio}</p>
                 </div>
             </div>
@@ -42,6 +40,7 @@ function Profile(props) {
                         text={post.text}
                         timestamp={post.timestamp}
                         username={post.username}
+                        user={props.user}
                     /> 
                 ))}    
             </FlipMove>

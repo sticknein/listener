@@ -1,27 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import './Feed.css';
+
+import FlipMove from 'react-flip-move';
+
 import PostBox from './PostBox';
 import Post from './Post';
-import FlipMove from 'react-flip-move';
 
 function Feed(props) {
     const [posts, setPosts] = useState(null);
 
-    useEffect(() => {
-        if (!posts) {
-            fetch('/get-user-posts')
-                .then(response => response.json())
-                .then(posts => setPosts(posts))
-                .catch(error => console.log(error));
-        };
-    });
-
-    const getUserPosts = post => {
+    const getUserPosts = () => {
         fetch('/get-user-posts')
             .then(response => response.json())
             .then(posts => setPosts(posts))
             .catch(error => console.log(error));
     }
+
+    useEffect(() => {
+        if (!posts) {
+            getUserPosts();
+        };
+    });
 
     return (
         <div className='feed'>
@@ -37,16 +36,20 @@ function Feed(props) {
 
             {posts &&
             <FlipMove>
-                {posts.sort((x, y) => {
-                    return x.timestamp - y.timestamp
-                }).map(post => (
-                    <Post  
-                        link={post.link}
-                        text={post.text}
-                        timestamp={post.timestamp}
-                        user={props.user}
-                    /> 
-                ))}    
+                <div className='posts'>
+                    {posts.map(post => (
+                        <Post 
+                            id={post.id}
+                            liked={post.liked}
+                            likes={post.likes}
+                            link={post.link}
+                            text={post.text}
+                            timestamp={post.timestamp}
+                            user={props.user}
+                        /> 
+
+                    ))}   
+                </div>
             </FlipMove>
             }   
         </div>

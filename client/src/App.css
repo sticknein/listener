@@ -3,6 +3,9 @@ body {
     --spotify-black: #191414;
     --listener-grey: #f0f0f0;
     --listener-lavender: #7659ab;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .app {
@@ -13,10 +16,6 @@ body {
     margin-left: auto;
     margin-right: auto;
     font-family: 'Roboto', sans-serif;
-}
-
-.create-account {
-    flex: 1;
 }
 
 .login {

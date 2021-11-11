@@ -21,15 +21,16 @@ const db = firebase.firestore();
 const storage = firebase.storage();
 const storageRef = storage.ref();
 
-// User object
+// Class constructors
 class User {
-    constructor (access_token, avatar, bio, date_joined, display_name, email, last_online, username) {
+    constructor (access_token, avatar, bio, date_joined, display_name, email, has_account, last_online, username) {
         this.access_token = access_token;
         this.avatar = avatar;
         this.bio = bio;
         this.date_joined = date_joined;
         this.display_name = display_name;
         this.email = email;
+        this.has_account = has_account;
         this.last_online = last_online;
         this.username = username;
     }
@@ -38,7 +39,49 @@ class User {
     }
 }
 
-// Firestore data converter
+class Post {
+    constructor (username, text, link) {
+        this.comments = [];
+        this.liked = false;
+        this.likes = 0;
+        this.link = link;
+        this.text = text;
+        this.timestamp = new Date();
+        this.username = username;
+    }
+    object() {
+        return Post;
+    }
+};
+
+// Firestore data converters
+
+const postConverter = {
+    toFirestore: post => {
+        return {
+            comments: post.comments,
+            liked: post.likes,
+            likes: post.likes,
+            link: post.link,
+            text: post.text,
+            timestamp: post.timestamp,
+            username: post.username
+        };
+    },
+    fromFirestore: (snapshot, options) => {
+        const data = snapshot.data(options);
+        return new Post(
+            data.comments,
+            data.liked,
+            data.likes,
+            data.link,
+            data.text,
+            data.timestamp,
+            data.username
+        );
+    }
+};
+
 const userConverter = {
     toFirestore: user => {
         return {
@@ -48,6 +91,7 @@ const userConverter = {
             date_joined: user.date_joined,
             display_name: user.display_name,
             email: user.email,
+            has_account: user.has_account,
             last_online: user.last_online,
             username: user.username
         };
@@ -61,37 +105,46 @@ const userConverter = {
             data.date_joined, 
             data.display_name, 
             data.email, 
+            data.has_account,
             data.last_online, 
             data.username
         );
     }
 };
 
-// Avatar storage
-function uploadAvatar(file, username, callback) {
-    let fileType = file.mimetype.replace('image/', '');
-    const avatarImagesRef = storageRef.child(`images/${username}/${username}-avatar.${fileType}`);
+// db query methods
 
-    fs.readFile(file.path, (error, data) => {
-        avatarImagesRef.put(data).then(snapshot => {
-            console.log('File uploaded!');
-        })
-        .catch(error => console.log(error));
-    });
+const createUser = user => {
+    return db.collection('users').doc(user.email)
+        .withConverter(userConverter)
+        .set(user)
+};
 
-    avatarImagesRef.getDownloadURL()
-        .then(link => {
-            const url = link;
-            callback(url)
-            return url;
+const editUser = user => {
+    return db.collection('users').doc(user.email)
+        .withConverter(userConverter)
+        .set(user)
+};
+
+const getPostComments = (username, id, callback) => {
+    db.collection('users').doc(username).collection('posts').doc(id).collection('comments').get()
+        .then(comments => {
+            let commentArray = comments.docs.map(doc => {
+                let comment = doc.data();
+                const id = doc.id;
+                comment = { id, ...comment };
+                return comment;
+            });
+            commentArray.sort((x, y) => {
+                return new Date(y.timestamp) - new Date(x.timestamp);
+            });
+            callback(commentArray)
         })
         .catch(error => console.log(error));
 }
 
-// user functions
-
-function getUser(username) {
-    return db.collection('users').doc(username)
+const getUser = email => {
+    return db.collection('users').doc(email)
             .get()
             .then(doc => {
                 if (doc.exists) {
@@ -101,68 +154,119 @@ function getUser(username) {
                     return null;
                 }
             })
-            .catch(error => console.log(error)); // callback(error)
+            .catch(error => console.log(error));
 }
 
-function createUser(user) {
-    db.collection('users').doc(user.username)
-        .withConverter(userConverter)
-        .set(user);
-    console.log(`Created user: ${user.username}`);
-}
-
-function updateUser(user) {
-    db.collection('users').doc(user.username)
-        .withConverter(userConverter)
-        .update({
-            access_token: user.access_token,
-            avatar: user.avatar,
-            bio: user.bio,
-            display_name: user.display_name,
-            email: user.email,
-            last_online: user.last_online,
-        });
-    console.log(`Updated user: ${user.username}`);
+const getUserPosts = (user, callback) => {
+    db.collection('posts').get()
+        .then(posts => {
+            let userPosts = posts.docs.map(doc => {
+                let post = doc.data();
+                const id = doc.id;
+                post = { id, ...post }
+                return post;
+            });
+            userPosts.sort((x, y) => {
+                return new Date(y.timestamp) - new Date(x.timestamp);
+            })
+            callback(userPosts)
+        })
+        .catch(error => console.log(error));
 };
 
-function userExists(user, callback) {
-    return db.collection('users').doc(user.username)
-        .get().then(doc => {
-            let exists = doc.exists;
-            callback(exists)
-            return exists;
+// const likePost = (id, username) => {
+//     db.collection('users').doc(username).collection('posts').doc(id).update({
+//         liked: true,
+//         liked_by: username,
+//         likes: firebase.firestore.FieldValue.increment(1)
+//     })
+// };
+
+// const sendComment = (id, username, comment, callback) => {
+//     db.collection('users').doc(username).collection('posts').doc(id).collection('comments').add({
+//         liked: false,
+//         liked_by: [],
+//         likes: 0,
+//         text: comment,
+//         timestamp: new Date().toString()
+//     })
+//     .then(comment => {
+//         callback(comment);
+//     })
+// }
+
+const sendPost = post => {
+    db.collection('posts').doc()
+        .withConverter(postConverter)
+        .set(post)
+}
+
+// const sendPost = (username, text, link, callback) => {
+//     db.collection('users').doc().collection('posts').add({
+//         liked: false,
+//         liked_by: [],
+//         likes: 0,
+//         link: link,  
+//         text: text, 
+//         timestamp: new Date().toString(),
+//         user: username
+//     })
+//     .then(post => {
+//         callback(post);
+//     })
+// };
+
+// const unlikePost = (id, username) => {
+//     db.collection('users').doc(username).collection('posts').doc(id).update({
+//         liked: false,
+//         liked_by: firebase.firestore.FieldValue.arrayRemove(username),
+//         likes: firebase.firestore.FieldValue.increment(-1)
+//     })
+// }
+
+// const userExists = (email, callback) => {
+//     return db.collection('users').doc(email)
+//         .get().then(doc => {
+//             let exists = doc.exists;
+//             callback(exists)
+//             return exists;
+//         })
+// };
+
+const uploadAvatar = (file, email, username, callback) => {
+    let fileType = file.mimetype.replace('image/', '');
+    const avatarImagesRef = storageRef.child(`images/${email}/${username}-avatar.${fileType}`);
+
+    fs.readFile(file.path, (error, data) => {
+        avatarImagesRef.put(data).then(snapshot => {
+            console.log('File uploaded!');
         })
-}
-
-// userPost functions
-
-function sendPost(user, text, link, callback) {
-    db.collection('users').doc(user.username).collection('posts').add({
-        link: link,  
-        text: text, 
-        timestamp: new Date().toString()
-    })
-    .then(post => {
-        callback(post);
-    })
-}
-
-function getUserPosts(user, callback) {
-    db.collection('users').doc(user.username).collection('posts').get().then(posts => {
-        let userPosts = posts.docs.map(doc => doc.data());
-        callback(userPosts)
-    })
-}
+        .then(() => {
+            return avatarImagesRef.getDownloadURL()
+            .then(link => {
+                const url = link;
+                callback(url)
+                return url;
+            })
+            .catch(error => console.log(error));
+        })
+        .catch(error => console.log(error));
+    });
+};
 
 module.exports = { 
     createUser,
     db,
+    editUser,
+    getPostComments,
     getUser,
     getUserPosts,
+    // likePost,
+    Post,
+    // sendComment,
     sendPost,
-    updateUser,
+    // unlikePost,
     uploadAvatar,
     User,
-    userConverter,
-    userExists
+    userConverter
 }

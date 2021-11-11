@@ -24,8 +24,7 @@
     width: 150px;
     border-radius: 50%;
     border: solid white 1px;
-    margin-top: -75px;
-    margin-left: 10px;
+    margin: 10px 0px 0px 50px;
 }
 
 #name-row {
@@ -34,11 +33,13 @@
 
 #name-row > h1 {
     font-size: 30px;
+    margin: 2px 2px 2px 50px;
 }
 
 #name-row > h2 {
     color: rgb(128, 128, 128);
     font-size: 20px;
+    margin: 2px 2px 2px 50px;
 }
 
 #name-row > p {

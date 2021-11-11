@@ -7,15 +7,21 @@ const multer = require('multer');
 const cryptoRandomString = require('crypto-random-string');
 const FirebaseStore = require('connect-session-firebase')(session);
 const admin = require('firebase-admin');
+const cookieParser = require('cookie-parser');
 
 const { 
     createUser,
     db, 
+    editUser,
+    getPostComments,
     getUser,
     getUserPosts,
+    likePost,
+    Post,
+    sendComment,
     sendPost,
     storage,
-    updateUser,
+    unlikePost,
     uploadAvatar, 
     User, 
     userConverter,
@@ -24,7 +30,6 @@ const {
 const serviceAccount = require(process.env.FIRESTORE_SERVICE_ACCOUNT)
 
 const Spotify = require('./spotify');
-// const { nextTick } = require('process');
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
@@ -49,6 +54,9 @@ app.use(express.static(path.join(__dirname, '..', 'build')));
 app.use(express.static(path.join(__dirname, '..', 'client')));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+const SIX_MONTHS = 15778800000;
 
 // SPOTIFY AUTH
 
@@ -89,25 +97,27 @@ app.get('/spotify-callback', async (req, res) => {
                 date_joined = today,
                 display_name = username, 
                 email,
+                has_account = false,
                 last_online = today,
                 username
             );
 
             req.session.user = user;
 
-            getUser(user.username).then(response => {
-                let exists = response;
-                if (exists) {
+            getUser(user.email).then(response => {
+                if (response !== null) {
                     user.avatar = response.avatar;
                     user.bio = response.bio;
                     user.date_joined = response.date_joined;
-                    user.email = response.email;
+                    user.has_account = true;
                     user.username = response.username;
-
 
                     res.redirect('http://localhost:3000/')
                 } else {
-                    res.redirect('http://localhost:3000/account-setup');
+                    // res.cookie('user', JSON.stringify(user), { maxAge: SIX_MONTHS, httpOnly: true });
+
+                    createUser(req.session.user)
+                    res.redirect('http://localhost:3000/edit-account');
                 }
             })
         })
@@ -123,42 +133,119 @@ app.get('/check-user', (req, res) => {
     });
 })
 
+app.get('/get-post-comments', (req, res) => {
+    return getPostComments(req.query.username, req.query.id, response => {
+        return res.send(response);
+    })
+});
+
 app.get('/get-user', (req, res) => {
     if (!req.session.user) {
-        return res.json(null); 
+        return res.json(null);
     }
     else {
-        return res.json(req.session.user); 
+        getUser(req.session.user.email)
+            .then(response => {
+                if (response !== null) {
+                    response.exists = true;
+                }
+                // console.log('index response', response)
+                // response.exists = true;
+                req.session.user = response;
+                return res.json(req.session.user);
+            })
+            .catch(error => console.log(error));
     }
 })
 
 app.get('/get-user-posts', (req, res) => {
-    return getUserPosts(req.session.user, response => {
-        return res.send(response);
+    return getUserPosts(req.session.user, postsArray => {
+        return res.send(postsArray);
     });
     
 })
 
 // POST
 
-app.post('/create-account', (req, res) => {
-    createUser(req.body)
-    req.session.user = req.body;
-    res.send(req.body)
+app.post('/create-account', upload.single('file'), (req, res) => {
+    let user = {
+        access_token: req.body.access_token,
+        avatar: '',
+        bio: req.body.bio,
+        date_joined: new Date(),
+        display_name: req.body.display_name,
+        email: req.body.email,
+        last_online: new Date(),
+        username: req.body.username
+    }
+
+    return createUser(user)
+        .then(() => {
+
+            return uploadAvatar(req.file, req.session.user.username, response => {
+                    let avatar = response;
+
+                    let user = {
+                        access_token: req.body.access_token,
+                        avatar: avatar,
+                        bio: req.body.bio,
+                        display_name: req.body.display_name,
+                        email: req.body.email,
+                        username: req.body.username
+                    }
+
+                    req.session.user.avatar = user.avatar;
+
+                    return updateUser(user)
+                        .then(() => {
+                            res.send(user)
+                        }).catch(error => console.log(error));
+        })
+    })
+});
+
+app.post('/like-post', (req, res) => {
+    return likePost(req.body.id, req.body.username);
+});
+
+app.post('/send-comment', (req, res) => {
+    sendComment(req.body.id, req.body.username, req.body.text, response => {
+        return res.send(response);
+    });
 })
 
 app.post('/send-post', (req, res) => {
-    return sendPost(req.session.user, req.body.text, req.body.link, response => {
-        return res.send(response)
-    });
+    const post = new Post(
+        req.session.user.username,
+        req.body.text,
+        req.body.link
+    );
+    
+    sendPost(post);
+})
+
+// app.post('/send-post', (req, res) => {
+//     sendPost(req.session.user.username, req.body.text, req.body.link, response => {
+//         return res.send(response)
+//     });
+// });
+
+app.post('/unlike-post', (req, res) => {
+    return unlikePost(req.body.id, req.body.username);
+})
+
+app.post('/edit-user', (req, res) => {
+    editUser(req.body)
+    req.session.user = req.body;
+    res.send(req.session.user)
 });
 
 app.post('/upload-avatar', upload.single('file'), (req, res) => { 
-    return uploadAvatar(req.file, req.session.user.username, response => {
+    return uploadAvatar(req.file, req.session.user.email, req.session.user.username, response => {
         const url = response;
-        res.json(url);
+        return res.json(url);
     })
-})
+});
 
 app.listen(5000, () => {
     console.log('server started on port 5000');

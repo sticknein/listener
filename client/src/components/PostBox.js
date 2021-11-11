@@ -6,7 +6,7 @@ function PostBox(props) {
     const [text, setText] = useState('');
     const [link, setLink] = useState('');
 
-    const sendPost = e => {
+    const sendPost = () => {
         const post = {
             text: text,
             link: link
@@ -27,12 +27,6 @@ function PostBox(props) {
         setText('');
         setLink('');
     };
-
-    const handleKeyPress = e => {
-        if (e.key === 'Enter') {
-            sendPost();
-        }
-    };
     
     return (
         <div className='postBox'>
@@ -41,22 +35,22 @@ function PostBox(props) {
                     <Avatar src={props.user.avatar} />
                     <input 
                         onChange={e => setText(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        value={text}
-                        placeholder={'What are you listening to?'} 
-                        type='text' 
+                        placeholder={'What are you listening to?'}
+                        type='text'
+                        value={text}  
                     />
                 </div>
-                <input 
+                {/* <input 
                     value={link}
                     onChange={e => setLink(e.target.value)}
                     className='postBox-urlInput' 
                     placeholder='Optional: Enter Spotify URL' 
                     type='text' 
-                />
+                /> */}
                 <Button 
-                    className='postBox-postButton'
+                    className='post-button'
                     onClick={sendPost} 
+                    type='submit'
                 >Post
                 </Button>
             </form>
