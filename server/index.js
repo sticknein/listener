@@ -10,6 +10,7 @@ const admin = require('firebase-admin');
 const cookieParser = require('cookie-parser');
 
 const { 
+    Comment,
     createUser,
     db, 
     editUser,
@@ -125,47 +126,13 @@ app.get('/spotify-callback', async (req, res) => {
     }
 );
 
-// GET
+// ENDPOINTS
 
 app.get('/check-user', (req, res) => {
-    return userExists(req.session.user, response => {
-        return res.send(response);
+    userExists(req.session.user, response => {
+        res.send(response);
     });
-})
-
-app.get('/get-post-comments', (req, res) => {
-    return getPostComments(req.query.username, req.query.id, response => {
-        return res.send(response);
-    })
 });
-
-app.get('/get-user', (req, res) => {
-    if (!req.session.user) {
-        return res.json(null);
-    }
-    else {
-        getUser(req.session.user.email)
-            .then(response => {
-                if (response !== null) {
-                    response.exists = true;
-                }
-                // console.log('index response', response)
-                // response.exists = true;
-                req.session.user = response;
-                return res.json(req.session.user);
-            })
-            .catch(error => console.log(error));
-    }
-})
-
-app.get('/get-user-posts', (req, res) => {
-    return getUserPosts(req.session.user, postsArray => {
-        return res.send(postsArray);
-    });
-    
-})
-
-// POST
 
 app.post('/create-account', upload.single('file'), (req, res) => {
     let user = {
@@ -182,7 +149,7 @@ app.post('/create-account', upload.single('file'), (req, res) => {
     return createUser(user)
         .then(() => {
 
-            return uploadAvatar(req.file, req.session.user.username, response => {
+            uploadAvatar(req.file, req.session.user.username, response => {
                     let avatar = response;
 
                     let user = {
@@ -196,7 +163,7 @@ app.post('/create-account', upload.single('file'), (req, res) => {
 
                     req.session.user.avatar = user.avatar;
 
-                    return updateUser(user)
+                    updateUser(user)
                         .then(() => {
                             res.send(user)
                         }).catch(error => console.log(error));
@@ -204,19 +171,59 @@ app.post('/create-account', upload.single('file'), (req, res) => {
     })
 });
 
+app.post('/edit-user', (req, res) => {
+    editUser(req.body)
+    req.session.user = req.body;
+    res.send(req.session.user)
+});
+
+app.get('/get-post-comments', (req, res) => {
+    getPostComments(req.query.username, req.query.id, response => {
+        res.send(response);
+    })
+});
+
+app.get('/get-user', (req, res) => {
+    if (!req.session.user) {
+        res.json(null);
+    }
+    else {
+        getUser(req.session.user.email)
+            .then(response => {
+                if (response !== null) {
+                    response.exists = true;
+                }
+                req.session.user = response;
+                res.json(req.session.user);
+            })
+            .catch(error => console.log(error));
+    }
+});
+
+app.get('/get-user-posts', (req, res) => {
+    getUserPosts(req.session.user, postsArray => {
+        res.send(postsArray);
+    });
+    
+});
+
 app.post('/like-post', (req, res) => {
-    return likePost(req.body.id, req.body.username);
+    likePost(req.body.post_id, req.body.email);
 });
 
 app.post('/send-comment', (req, res) => {
-    sendComment(req.body.id, req.body.username, req.body.text, response => {
-        return res.send(response);
-    });
+    const comment = new Comment(
+        req.body.post_id, 
+        req.body.username, 
+        req.body.text
+    )
+
+    sendComment(comment);
 })
 
 app.post('/send-post', (req, res) => {
     const post = new Post(
-        req.session.user.username,
+        req.session.user,
         req.body.text,
         req.body.link
     );
@@ -224,26 +231,14 @@ app.post('/send-post', (req, res) => {
     sendPost(post);
 })
 
-// app.post('/send-post', (req, res) => {
-//     sendPost(req.session.user.username, req.body.text, req.body.link, response => {
-//         return res.send(response)
-//     });
-// });
-
 app.post('/unlike-post', (req, res) => {
-    return unlikePost(req.body.id, req.body.username);
+    unlikePost(req.body.post_id, req.body.email);
 })
 
-app.post('/edit-user', (req, res) => {
-    editUser(req.body)
-    req.session.user = req.body;
-    res.send(req.session.user)
-});
-
 app.post('/upload-avatar', upload.single('file'), (req, res) => { 
-    return uploadAvatar(req.file, req.session.user.email, req.session.user.username, response => {
+    uploadAvatar(req.file, req.session.user.email, req.session.user.username, response => {
         const url = response;
-        return res.json(url);
+        res.json(url);
     })
 });
 

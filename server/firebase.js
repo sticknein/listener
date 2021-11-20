@@ -22,6 +22,34 @@ const storage = firebase.storage();
 const storageRef = storage.ref();
 
 // Class constructors
+
+class Comment {
+    constructor(post_id, user, text) {
+        this.comments = [];
+        this.liked_by = [];
+        this.post_id = post_id;
+        this.text = text;
+        this.user = user;
+    }
+    object() {
+        return Comment;
+    }
+}
+
+class Post {
+    constructor (user, text, link) {
+        this.comments = [];
+        this.liked_by = [];
+        this.link = link;
+        this.text = text;
+        this.timestamp = new Date().toString();
+        this.user = user;
+    }
+    object() {
+        return Post;
+    }
+};
+
 class User {
     constructor (access_token, avatar, bio, date_joined, display_name, email, has_account, last_online, username) {
         this.access_token = access_token;
@@ -37,47 +65,52 @@ class User {
     object() {
         return User;
     }
-}
-
-class Post {
-    constructor (username, text, link) {
-        this.comments = [];
-        this.liked = false;
-        this.likes = 0;
-        this.link = link;
-        this.text = text;
-        this.timestamp = new Date();
-        this.username = username;
-    }
-    object() {
-        return Post;
-    }
 };
 
 // Firestore data converters
+
+const commentConverter = {
+    toFirestore: comment => {
+        return {
+            comments: comment.comments,
+            liked_by: comment.liked_by,
+            post_id: comment.post_id,
+            text: comment.text,
+            username: comment.username
+        };
+    },
+    fromFirestore: (snapshot, options) => {
+        const data = snapshot.data(options);
+        return new Comment(
+            data.comments,
+            data.liked_by,
+            data.post_id,
+            data.text,
+            data.username
+        )
+    }
+}
 
 const postConverter = {
     toFirestore: post => {
         return {
             comments: post.comments,
-            liked: post.likes,
-            likes: post.likes,
+            liked_by: post.liked_by,
             link: post.link,
             text: post.text,
             timestamp: post.timestamp,
-            username: post.username
+            user: post.user
         };
     },
     fromFirestore: (snapshot, options) => {
         const data = snapshot.data(options);
         return new Post(
             data.comments,
-            data.liked,
-            data.likes,
+            data.liked_by,
             data.link,
             data.text,
             data.timestamp,
-            data.username
+            data.user
         );
     }
 };
@@ -174,26 +207,17 @@ const getUserPosts = (user, callback) => {
         .catch(error => console.log(error));
 };
 
-// const likePost = (id, username) => {
-//     db.collection('users').doc(username).collection('posts').doc(id).update({
-//         liked: true,
-//         liked_by: username,
-//         likes: firebase.firestore.FieldValue.increment(1)
-//     })
-// };
+const likePost = (post_id, email) => {
+    db.collection('posts').doc(post_id).update({
+        liked_by: firebase.firestore.FieldValue.arrayUnion(email)
+    });
+};
 
-// const sendComment = (id, username, comment, callback) => {
-//     db.collection('users').doc(username).collection('posts').doc(id).collection('comments').add({
-//         liked: false,
-//         liked_by: [],
-//         likes: 0,
-//         text: comment,
-//         timestamp: new Date().toString()
-//     })
-//     .then(comment => {
-//         callback(comment);
-//     })
-// }
+const sendComment = (post_author, comment) => {
+    db.collection('users').doc(post_author).collecion('posts').doc(comment.post_id).collection('comments')
+        .withConverter(commentConverter)
+        .set(comment)
+}
 
 const sendPost = post => {
     db.collection('posts').doc()
@@ -201,37 +225,11 @@ const sendPost = post => {
         .set(post)
 }
 
-// const sendPost = (username, text, link, callback) => {
-//     db.collection('users').doc().collection('posts').add({
-//         liked: false,
-//         liked_by: [],
-//         likes: 0,
-//         link: link,  
-//         text: text, 
-//         timestamp: new Date().toString(),
-//         user: username
-//     })
-//     .then(post => {
-//         callback(post);
-//     })
-// };
-
-// const unlikePost = (id, username) => {
-//     db.collection('users').doc(username).collection('posts').doc(id).update({
-//         liked: false,
-//         liked_by: firebase.firestore.FieldValue.arrayRemove(username),
-//         likes: firebase.firestore.FieldValue.increment(-1)
-//     })
-// }
-
-// const userExists = (email, callback) => {
-//     return db.collection('users').doc(email)
-//         .get().then(doc => {
-//             let exists = doc.exists;
-//             callback(exists)
-//             return exists;
-//         })
-// };
+const unlikePost = (post_id, email) => {
+    db.collection('posts').doc(post_id).update({
+        liked_by: firebase.firestore.FieldValue.arrayRemove(email)
+    });
+};
 
 const uploadAvatar = (file, email, username, callback) => {
     let fileType = file.mimetype.replace('image/', '');
@@ -255,17 +253,19 @@ const uploadAvatar = (file, email, username, callback) => {
 };
 
 module.exports = { 
+    Comment,
+    commentConverter,
     createUser,
     db,
     editUser,
     getPostComments,
     getUser,
     getUserPosts,
-    // likePost,
+    likePost,
     Post,
-    // sendComment,
+    sendComment,
     sendPost,
-    // unlikePost,
+    unlikePost,
     uploadAvatar,
     User,
     userConverter

@@ -10,7 +10,7 @@ function Feed(props) {
     const [posts, setPosts] = useState(null);
 
     const getUserPosts = () => {
-        fetch('/get-user-posts')
+        fetch('/get-user-posts') // get-user-feed -- eventually
             .then(response => response.json())
             .then(posts => setPosts(posts))
             .catch(error => console.log(error));
@@ -39,13 +39,13 @@ function Feed(props) {
                 <div className='posts'>
                     {posts.map(post => (
                         <Post 
-                            id={post.id}
+                            post_id={post.post_id}
                             liked={post.liked}
                             likes={post.likes}
                             link={post.link}
                             text={post.text}
                             timestamp={post.timestamp}
-                            user={props.user}
+                            user={props.user} // this must be post.user -- follow the thread
                         /> 
 
                     ))}   

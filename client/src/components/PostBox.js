@@ -8,6 +8,7 @@ function PostBox(props) {
 
     const sendPost = () => {
         const post = {
+            user: props.user,
             text: text,
             link: link
         }

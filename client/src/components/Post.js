@@ -19,6 +19,8 @@ function Post(props) {
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState([]);
 
+    console.log('props.post_id', props.post_id)
+
     const likePost = () => {
         if (!liked) {
             setLikes(likes + 1);
@@ -30,8 +32,8 @@ function Post(props) {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    id: props.id,
-                    username: props.user.username
+                    post_id: props.post_id,
+                    email: props.user.email
                 })
             })
             .catch(error => console.log(error));
@@ -46,8 +48,8 @@ function Post(props) {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    id: props.id,
-                    username: props.user.username
+                    post_id: props.post_id,
+                    email: props.user.email
                 })
             })
         }
@@ -60,7 +62,7 @@ function Post(props) {
 
     const sendComment = () => {
         const commentObject = {
-            id: props.id,
+            post_id: props.post_id,
             username: props.user.username,
             text: comment
         }

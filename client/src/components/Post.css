@@ -33,11 +33,13 @@
     font-size: 11px !important;
     font-weight: 900 !important; 
     width: 50px;
+    cursor: pointer;
 }
 
 #comment-icon {
     justify-content: center;
     margin-left: 50px;
+    cursor: pointer;
 }
 
 #comment-icon:hover {
@@ -45,6 +47,10 @@
     background-color: rgb(123, 227, 123);
     border-radius: 30px;
     transition: color 100ms ease-out;
+}
+
+#like {
+    cursor: pointer;
 }
 
 #like-count {
@@ -61,6 +67,7 @@
 #liked {
     color: red;
     transition: color 100ms ease-out;
+    cursor: pointer;
 }
 
 #liked:hover {
