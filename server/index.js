@@ -40,6 +40,8 @@ const ref = admin.initializeApp({
     databaseURL: process.env.FIRESTORE_DATABASE_URL
 });
 
+const SIX_MONTHS = 15778800000;
+
 app.use(
     session({
         store: new FirebaseStore({
@@ -47,7 +49,8 @@ app.use(
         }),
         secret: process.env.SESS_SECRET,
         resave: false,
-        saveUninitialized: false
+        saveUninitialized: false,
+        expires: new Date(Date.now() + SIX_MONTHS)
     })
 );
 
@@ -56,8 +59,6 @@ app.use(express.static(path.join(__dirname, '..', 'client')));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-const SIX_MONTHS = 15778800000;
 
 // SPOTIFY AUTH
 
@@ -209,6 +210,7 @@ app.get('/get-user-posts', (req, res) => {
 
 app.post('/like-post', (req, res) => {
     likePost(req.body.post_id, req.body.email);
+    res.send(`Liked post ${req.body_post_id}`)
 });
 
 app.post('/send-comment', (req, res) => {
@@ -233,6 +235,7 @@ app.post('/send-post', (req, res) => {
 
 app.post('/unlike-post', (req, res) => {
     unlikePost(req.body.post_id, req.body.email);
+    res.send(`Unliked post ${req.body.post_id}`)
 })
 
 app.post('/upload-avatar', upload.single('file'), (req, res) => { 

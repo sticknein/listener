@@ -195,8 +195,8 @@ const getUserPosts = (user, callback) => {
         .then(posts => {
             let userPosts = posts.docs.map(doc => {
                 let post = doc.data();
-                const id = doc.id;
-                post = { id, ...post }
+                const post_id = doc.id;
+                post = { post_id, ...post }
                 return post;
             });
             userPosts.sort((x, y) => {

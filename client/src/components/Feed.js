@@ -22,6 +22,8 @@ function Feed(props) {
         };
     });
 
+    console.log(typeof posts)
+
     return (
         <div className='feed'>
             <div className='feed-header'>
@@ -40,12 +42,11 @@ function Feed(props) {
                     {posts.map(post => (
                         <Post 
                             post_id={post.post_id}
-                            liked={post.liked}
-                            likes={post.likes}
+                            liked_by={post.liked_by}
                             link={post.link}
                             text={post.text}
                             timestamp={post.timestamp}
-                            user={props.user} // this must be post.user -- follow the thread
+                            user={post.user}
                         /> 
 
                     ))}   
