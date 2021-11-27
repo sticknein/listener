@@ -14,11 +14,12 @@
     display: flex;
 }
 
-.postBox-input > input {
+.postBox-input > textarea {
     flex: 1;
     margin-left: 20px;
     font-size: 20px;
     border: none;
+    resize: none;
 }
 
 .postBox-input > input:focus {

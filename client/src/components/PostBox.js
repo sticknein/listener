@@ -34,20 +34,13 @@ function PostBox(props) {
             <form>
                 <div className='postBox-input'>
                     <Avatar src={props.user.avatar} />
-                    <input 
+                    <textarea 
                         onChange={e => setText(e.target.value)}
                         placeholder={'What are you listening to?'}
                         type='text'
                         value={text}  
                     />
                 </div>
-                {/* <input 
-                    value={link}
-                    onChange={e => setLink(e.target.value)}
-                    className='postBox-urlInput' 
-                    placeholder='Optional: Enter Spotify URL' 
-                    type='text' 
-                /> */}
                 <Button 
                     className='post-button'
                     onClick={sendPost} 

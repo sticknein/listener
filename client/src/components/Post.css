@@ -1,10 +1,9 @@
 .post {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: flex-start;
     border-bottom: 1px solid var(--listener-grey);
     width: 100%;
-    padding-bottom: 10px;
     height: auto;
 }
 
@@ -12,10 +11,28 @@
     display: flex;
     height: 23px;
     align-items: center;
+    margin-left: 63px;
+    margin-bottom: 10px;
 }
 
-.post-options {
-    margin-left: 90%;
+.post-header {
+    margin-left: 10px;
+    margin-top: 10px;
+    display: flex;
+    width: 100%;
+    height: 40px;
+}
+
+.post-header-text {
+    padding-left: 10px;
+    display: flex;
+}
+
+.post-text {
+    margin-left: 63px;
+    display: flex;
+    width: 100%;
+    
 }
 
 .comment {
@@ -86,24 +103,11 @@
     position: absolute;
 }
 
-.post-body {
-    flex: 1;
-    padding: 10px;
-}
-
-.post-text > h3 {
-    font-size: 15px;
-    margin-bottom: 5px;
-}
-
 .post-username {
-    font-weight: 600;
-    font-size: 12px;
+    font-weight: 200;
     color: rgb(48, 48, 48);
-}
-
-.post-avatar {
-    padding: 20px;
+    margin-left: 2px;
+    padding-left: 5px;
 }
 
 textarea {
@@ -114,4 +118,22 @@ textarea {
 #timestamp {
     font-size: 13px;
     font-weight: 450;
+    padding-left: 5px;
+}
+
+.delete-post-button {
+    padding: 8px !important;
+    background: red !important;
+    color: white !important;
+    border-radius: 30px;
+    position: absolute;
+    top: 10%;
+    left: 80%;
+}
+
+.delete-post {
+    position: absolute;
+    left: 92%;
+    top: 18%;
+    cursor: pointer;
 }

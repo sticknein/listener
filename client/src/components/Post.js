@@ -7,7 +7,7 @@ import { Avatar, Button } from '@material-ui/core';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 var relativeTime = require('dayjs/plugin/relativeTime')
 dayjs.extend(relativeTime)
@@ -19,6 +19,7 @@ function Post(props) {
     const [commentHidden, setCommentHidden] = useState(true);
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState([]);
+    const [showOptions, setShowOptions] = useState(false);
 
     useEffect(() => {
         if (props.liked_by.includes(props.user.email)) {
@@ -90,22 +91,33 @@ function Post(props) {
 
         setComment('');
     }
+
+    const showPostOptions = () => {
+        let visible = showOptions;
+        setShowOptions(!visible);
+    }
   
     return (
         <div className='post'>
-            <div className='post-avatar'>
-                <Avatar src={props.user.avatar} />
-            </div>
             <div className='post-header'>
-                <h3>
-                    {props.user.display_name}
-                    <span className='post-username'>
+                <Avatar className='post-avatar' src={props.user.avatar} />
+                <div className='post-header-text'>
+                    <h3>{props.user.display_name}</h3>
+                    <h4 className='post-username'>
                         @{props.user.username}
-                    </span>
-                    <span> • </span>
-                    <span id='timestamp'>{dayjs(props.timestamp).fromNow()}</span>
-                    <MoreHorizIcon className='post-options'/>
-                </h3>
+                    </h4>
+                    <h4> • </h4>
+                    <h5 id='timestamp'>{dayjs(props.timestamp).fromNow()}</h5>
+                    <DeleteIcon 
+                        className='delete-post'
+                        onClick={showPostOptions}
+                    />
+                    {showOptions ? 
+                        <div className='post-options'>
+                            <Button className='delete-post-button'>Delete Post</Button>
+                        </div> 
+                        : null}
+                </div>
             </div>
             <div className='post-text'>
                 <p>{props.text}</p>
