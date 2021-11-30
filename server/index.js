@@ -13,6 +13,7 @@ const {
     Comment,
     createUser,
     db, 
+    deletePost,
     editUser,
     getPostComments,
     getUser,
@@ -171,6 +172,11 @@ app.post('/create-account', upload.single('file'), (req, res) => {
         })
     })
 });
+
+app.post('/delete-post', (req, res) => {
+    deletePost(req.body.post_id);
+    res.send(`Deleted post ${req.body.post_id}`);
+})
 
 app.post('/edit-user', (req, res) => {
     editUser(req.body)

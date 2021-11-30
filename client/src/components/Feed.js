@@ -22,8 +22,6 @@ function Feed(props) {
         };
     });
 
-    console.log(typeof posts)
-
     return (
         <div className='feed'>
             <div className='feed-header'>
@@ -42,6 +40,7 @@ function Feed(props) {
                     {posts.map(post => (
                         <Post 
                             post_id={post.post_id}
+                            getUserPosts={getUserPosts}
                             liked_by={post.liked_by}
                             link={post.link}
                             text={post.text}

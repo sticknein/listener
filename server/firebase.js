@@ -153,6 +153,16 @@ const createUser = user => {
         .set(user)
 };
 
+const deletePost = post_id => {
+    db.collection('posts').doc(post_id).delete()
+        .then(() => {
+            console.log(`Post ${post_id} deleted`)
+        })
+        .catch(error => {
+            console.error('Error removing document: ', error);
+        });
+};
+
 const editUser = user => {
     return db.collection('users').doc(user.email)
         .withConverter(userConverter)
@@ -257,6 +267,7 @@ module.exports = {
     commentConverter,
     createUser,
     db,
+    deletePost,
     editUser,
     getPostComments,
     getUser,

@@ -20,18 +20,6 @@
     font-size: 20px;
     border: none;
     resize: none;
-}
-
-.postBox-input > input:focus {
-    outline: none;
-}
-
-.postBox-urlInput {
-    border: none;
-    padding: 10px;
-}
-
-.postBox-urlInput:focus {
     outline: none;
 }
 
@@ -46,4 +34,4 @@
     height: 40px !important;
     margin-top: 20px !important;
     margin-left: auto !important;
-}
+};

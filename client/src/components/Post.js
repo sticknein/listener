@@ -7,7 +7,7 @@ import { Avatar, Button } from '@material-ui/core';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import DeleteIcon from '@material-ui/icons/Delete';
+import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 
 var relativeTime = require('dayjs/plugin/relativeTime')
 dayjs.extend(relativeTime)
@@ -19,7 +19,7 @@ function Post(props) {
     const [commentHidden, setCommentHidden] = useState(true);
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState([]);
-    const [showOptions, setShowOptions] = useState(false);
+    const [showDelete, setShowDelete] = useState(false);
 
     useEffect(() => {
         if (props.liked_by.includes(props.user.email)) {
@@ -92,9 +92,30 @@ function Post(props) {
         setComment('');
     }
 
-    const showPostOptions = () => {
-        let visible = showOptions;
-        setShowOptions(!visible);
+    const showDeleteButton = () => {
+        let visible = showDelete;
+        setShowDelete(!visible);
+    }
+
+    const deletePost = () => {
+        console.log('we hit deletPost function')
+        console.log('props.post_id', props.post_id)
+        fetch('/delete-post', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                post_id: props.post_id
+            })
+        })
+        .then(() => {
+            console.log(`Deleted post ${props.post_id}`);
+            props.getUserPosts();
+        })
+        .catch(error => {
+            console.log(error);
+        })
     }
   
     return (
@@ -108,16 +129,21 @@ function Post(props) {
                     </h4>
                     <h4> • </h4>
                     <h5 id='timestamp'>{dayjs(props.timestamp).fromNow()}</h5>
-                    <DeleteIcon 
+                    <div className='delete'>
+                        <DeleteOutlineIcon 
                         className='delete-post'
-                        onClick={showPostOptions}
+                        onClick={showDeleteButton}
                     />
-                    {showOptions ? 
+                    </div>
+                </div>
+                {showDelete ? 
                         <div className='post-options'>
-                            <Button className='delete-post-button'>Delete Post</Button>
+                            <Button 
+                                className='delete-post-button'
+                                onClick={deletePost}
+                            >Delete Post</Button>
                         </div> 
                         : null}
-                </div>
             </div>
             <div className='post-text'>
                 <p>{props.text}</p>

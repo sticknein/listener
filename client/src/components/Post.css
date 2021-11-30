@@ -5,6 +5,7 @@
     border-bottom: 1px solid var(--listener-grey);
     width: 100%;
     height: auto;
+    max-width: 500px;
 }
 
 .post-footer {
@@ -26,6 +27,7 @@
 .post-header-text {
     padding-left: 10px;
     display: flex;
+    max-width: 240px;
 }
 
 .post-text {
@@ -110,6 +112,10 @@
     padding-left: 5px;
 }
 
+h4 {
+    margin-left: 6px;
+}
+
 textarea {
     width: 15vw;
     resize: none;
@@ -119,21 +125,30 @@ textarea {
     font-size: 13px;
     font-weight: 450;
     padding-left: 5px;
+    min-width: 110px;
 }
 
 .delete-post-button {
     padding: 8px !important;
     background: red !important;
     color: white !important;
+    border-radius: 30px !important;
+    margin-left: 99% !important;
+    min-width: 120px !important;
+}
+
+.delete-post:hover {
+    opacity: 0.5;
+    background-color: rgb(201, 144, 144);
     border-radius: 30px;
-    position: absolute;
-    top: 10%;
-    left: 80%;
+    transition: color 100ms ease-out;
 }
 
 .delete-post {
-    position: absolute;
-    left: 92%;
-    top: 18%;
     cursor: pointer;
+}
+
+.delete {
+    margin-top: 10px;
+    margin-left: 85%;
 }
