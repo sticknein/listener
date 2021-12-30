@@ -20,13 +20,18 @@ function App(props) {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        fetch('/get-user')
+        const localStorageUser = localStorage.getItem('user');
+        const localStorageObject = JSON.parse(localStorageUser);
+        localStorageObject.has_account = true;
+        if (!localStorageUser) {
+            fetch('/get-user')
             .then(response => { 
                 const data = response.json();
                 return data;
             })
             .then(userObject => {
                 if (userObject !== null) {
+                    localStorage.setItem('user', JSON.stringify(userObject));
                     setUser(userObject);
                     setIsLoggedIn(true);
                     setIsLoading(false);
@@ -37,6 +42,12 @@ function App(props) {
                 }
             })
             .catch(error => console.log(error));
+        }
+        else {
+            setUser(localStorageObject);
+            setIsLoggedIn(true);
+            setIsLoading(false);
+        }
     }, [])
 
     if (isLoading) {

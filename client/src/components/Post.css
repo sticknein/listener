@@ -1,11 +1,17 @@
 .post {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     border-bottom: 1px solid var(--listener-grey);
     width: 100%;
     height: auto;
-    max-width: 500px;
+}
+
+.post-header {
+    display: flex;
+    margin-left: 10px;
+    margin-top: 10px;
+    width: 100%;
+    height: 40px;
 }
 
 .post-footer {
@@ -16,28 +22,28 @@
     margin-bottom: 10px;
 }
 
-.post-header {
-    margin-left: 10px;
-    margin-top: 10px;
-    display: flex;
-    width: 100%;
-    height: 40px;
-}
-
 .post-header-text {
     padding-left: 10px;
     display: flex;
     max-width: 240px;
 }
 
+.post-username {
+    font-weight: 200;
+    color: rgb(48, 48, 48);
+    margin-left: 2px;
+    padding-left: 5px;
+}
+
 .post-text {
     margin-left: 63px;
     display: flex;
     width: 100%;
-    
+    max-width: 500px;
+    white-space: pre-wrap;
 }
 
-.comment {
+.comment-box {
     display: flex;
     margin-left: 10px;
     max-width: 20vw;
@@ -105,13 +111,6 @@
     position: absolute;
 }
 
-.post-username {
-    font-weight: 200;
-    color: rgb(48, 48, 48);
-    margin-left: 2px;
-    padding-left: 5px;
-}
-
 h4 {
     margin-left: 6px;
 }
@@ -135,20 +134,29 @@ textarea {
     border-radius: 30px !important;
     margin-left: 99% !important;
     min-width: 120px !important;
+    cursor: pointer;
 }
 
-.delete-post:hover {
+.delete-post-button:hover {
     opacity: 0.5;
     background-color: rgb(201, 144, 144);
     border-radius: 30px;
     transition: color 100ms ease-out;
 }
 
-.delete-post {
-    cursor: pointer;
-}
-
 .delete {
     margin-top: 10px;
     margin-left: 85%;
+}
+
+.comments {
+    width: 200px;
+    height: auto;
+}
+
+#post-options:hover {
+    color: red;
+    background-color: rgb(201, 144, 144);
+    border-radius: 30px;
+    transition: color 100ms ease-out;
 }

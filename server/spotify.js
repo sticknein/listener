@@ -12,4 +12,15 @@ const Spotify = new SpotifyWebApi({
     redirectUri: process.env.REACT_APP_REDIRECT_URI
 });
 
-module.exports = Spotify;
+const nowPlaying = () => {
+    return Spotify.getMyCurrentPlaybackState()
+                .then(data => {
+                    console.log('spotify.js data', data)
+                    return data;
+                })
+                .catch(error => console.log(error));
+}
+
+module.exports = {
+    nowPlaying
+};

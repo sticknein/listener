@@ -8,13 +8,50 @@ import Post from './Post';
 
 function Feed(props) {
     const [posts, setPosts] = useState(null);
+    const [commentsHidden, setCommentsHidden] = useState(true);
+    const [comments, setComments] = useState(null);
+
+    const getPostComments = post_id => {
+        fetch('/get-post-comments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: post_id
+            })
+        })
+        .then(response => {
+            response.json()
+        })
+        .then(comments => {
+            let placeholder_posts = posts;
+            const post = placeholder_posts.find(post => post.post_id === post_id);
+            const post_index = placeholder_posts.findIndex(post => post.post_id === post_id);
+            post.comments = comments;
+            placeholder_posts[post_index] = post;
+            setPosts(placeholder_posts);
+        });
+    };
 
     const getUserPosts = () => {
-        fetch('/get-user-posts') // get-user-feed -- eventually
-            .then(response => response.json())
-            .then(posts => setPosts(posts))
+        fetch('/get-user-posts')
+            .then(response => {
+                return response.json()
+            })
+            .then(posts => {
+                let all_comments = [];
+                posts.forEach(post => {
+                    if (post.comments.length > 0) {
+                        for (let i = 0; i < post.comments.length; i++) {
+                            all_comments.push(post.comments[i])
+                        }
+                    }
+                })
+                return setPosts(posts)
+            })
             .catch(error => console.log(error));
-    }
+    };
 
     useEffect(() => {
         if (!posts) {
@@ -38,16 +75,23 @@ function Feed(props) {
             <FlipMove>
                 <div className='posts'>
                     {posts.map(post => (
-                        <Post 
-                            post_id={post.post_id}
-                            getUserPosts={getUserPosts}
-                            liked_by={post.liked_by}
-                            link={post.link}
-                            text={post.text}
-                            timestamp={post.timestamp}
-                            user={post.user}
-                        /> 
-
+                        <div className='post' key={post.post_id}>
+                            <Post 
+                                comments={post.comments}
+                                post_id={post.post_id}
+                                getUserPosts={getUserPosts}
+                                liked_by={post.liked_by}
+                                link={post.link}
+                                text={post.text}
+                                timestamp={post.timestamp}
+                                user={post.user}
+                            /> 
+                            {!commentsHidden ? 
+                                <div className='comments'>
+                                    
+                                </div>
+                                : null}
+                        </div>
                     ))}   
                 </div>
             </FlipMove>

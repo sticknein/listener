@@ -1,24 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+
 import './Activity.css';
 
 function Activity(props) {
+    const [nowPlaying, setNowPlaying] = useState(null);
+
+    useEffect(() => {
+        fetch('/now-playing')
+            .then(response => {
+                console.log(response)
+            })
+            .catch(error => console.log(error));
+    })
+
     return (
         <div className='activity'>
             <h2>Activity</h2>
             <br/>
-            {/* <p>{Spotify.nowPlaying()}</p> */}
+            <p>NOW PLAYING BREH</p>
             <br/>
-            <p>John Doe is listening to John Denver artist radio</p>
-            <br />
-            <p>William Patrick Corgan is listening to the 'Sad Clown Music' playlist</p>
-            <br />
-            <p>Kanye West is listening to Kanye West</p>
-            <br />
-            <p>John Smith is listening to 'The Pocahontas Soundtrack'</p>
-            <br />
-            <p>Holophone is listening to his playlist 'djmeplz'</p>
-            <br />
-            <p>Mayacamas is listening to Holophone's playlist 'Altimeter'</p>
         </div>
     )
 }

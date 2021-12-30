@@ -5,15 +5,42 @@ import Post from './Post';
 
 
 function Profile(props) {
-    const [posts, setPosts] = useState([]);
+    const [posts, setPosts] = useState(null);
+    const [commentHidden, setCommentHidden] = useState(true);
+
+    // useEffect(() => {
+    //     fetch('/get-user-posts')
+    //         .then(posts => posts.json())
+    //         .then(jsonPosts => {
+    //             console.log('Profile.js jsonPosts', jsonPosts)
+    //             setPosts(jsonPosts)
+    //         })
+    // }, []);
+
+    const getUserPosts = () => {
+        fetch('/get-user-posts')
+            .then(response => {
+                return response.json()
+            })
+            .then(posts => {
+                let all_comments = [];
+                posts.forEach(post => {
+                    if (post.comments.length > 0) {
+                        for (let i = 0; i < post.comments.length; i++) {
+                            all_comments.push(post.comments[i])
+                        }
+                    }
+                })
+                return setPosts(posts)
+            })
+            .catch(error => console.log(error));
+    };
 
     useEffect(() => {
-        fetch('/get-user-posts')
-            .then(posts => posts.json())
-            .then(jsonPosts => {
-                setPosts(jsonPosts)
-            })
-    }, []);
+        if (!posts) {
+            getUserPosts();
+        }
+    })
 
     return (
         <div className='profile'>
@@ -30,21 +57,31 @@ function Profile(props) {
 
             <hr />
 
+            {posts &&
             <FlipMove>
-                {posts.map(post => (
-                    <Post 
-                        //key={post.} PULL POST ID FROM FIREBASE, create auto incr? use other method? 
-                        avatar={post.avatar}
-                        display_name={post.display_name}
-                        link={post.link}
-                        text={post.text}
-                        timestamp={post.timestamp}
-                        username={post.username}
-                        user={props.user}
-                    /> 
-                ))}    
+                <div className='posts'>
+                    {posts.map(post => (
+                        <div className='post' key={post.post_id}>
+                            <Post 
+                                comments={post.comments}
+                                post_id={post.post_id}
+                                getUserPosts={getUserPosts}
+                                liked_by={post.liked_by}
+                                link={post.link}
+                                text={post.text}
+                                timestamp={post.timestamp}
+                                user={post.user}
+                            /> 
+                            {!commentHidden ? 
+                                <div className='comments'>
+                                    
+                                </div>
+                                : null}
+                        </div>
+                    ))}   
+                </div>
             </FlipMove>
-
+            }   
         </div>
     )
 }

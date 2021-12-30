@@ -13,25 +13,33 @@ const {
     Comment,
     createUser,
     db, 
+    deleteComment,
     deletePost,
     editUser,
     getPostComments,
     getUser,
     getUserPosts,
+    likeComment,
     likePost,
     Post,
     sendComment,
     sendPost,
     storage,
+    unlikeComment,
     unlikePost,
     uploadAvatar, 
     User, 
     userConverter,
-    userExists
+    userExists,
 } = require('./firebase');
+
+const {
+    nowPlaying
+} = require('./spotify')
+
 const serviceAccount = require(process.env.FIRESTORE_SERVICE_ACCOUNT)
 
-const Spotify = require('./spotify');
+// const { send } = require('process');
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
@@ -173,6 +181,11 @@ app.post('/create-account', upload.single('file'), (req, res) => {
     })
 });
 
+app.post('/delete-comment', (req, res) => {
+    deleteComment(req.body.comment_id);
+    res.send(`Deleted comment ${req.body.comment_id}`);
+});
+
 app.post('/delete-post', (req, res) => {
     deletePost(req.body.post_id);
     res.send(`Deleted post ${req.body.post_id}`);
@@ -184,8 +197,8 @@ app.post('/edit-user', (req, res) => {
     res.send(req.session.user)
 });
 
-app.get('/get-post-comments', (req, res) => {
-    getPostComments(req.query.username, req.query.id, response => {
+app.post('/get-post-comments', (req, res) => {
+    getPostComments(req.body.post_id, response => {
         res.send(response);
     })
 });
@@ -214,30 +227,53 @@ app.get('/get-user-posts', (req, res) => {
     
 });
 
+app.post('/like-comment', (req, res) => {
+    likeComment(req.body.comment_id, req.body.email);
+    res.send(`Liked comment ${req.body.comment_id}`);
+});
+
 app.post('/like-post', (req, res) => {
     likePost(req.body.post_id, req.body.email);
-    res.send(`Liked post ${req.body_post_id}`)
+    res.send(`Liked post ${req.body_post_id}`);
+});
+
+app.get('/now-playing', (req, res) => {
+    nowPlaying()
+        .then(response => {
+            console.log('index.js response', response);
+            res.send(response)
+        })
+        .catch(error => console.log(error));
 });
 
 app.post('/send-comment', (req, res) => {
     const comment = new Comment(
         req.body.post_id, 
-        req.body.username, 
+        req.body.user, 
         req.body.text
     )
 
-    sendComment(comment);
+    sendComment(comment)
+        .then(db_comment => {
+            res.send(db_comment);
+        })
+        .catch(error => console.log(error));
 })
 
 app.post('/send-post', (req, res) => {
     const post = new Post(
-        req.session.user,
+        req.body.user,
         req.body.text,
         req.body.link
     );
     
     sendPost(post);
-})
+});
+
+app.post('/unlike-comment', (req, res) => {
+    unlikeComment(req.body.comment_id, req.body.email);
+    res.send(`Unliked comment ${req.body.comment_id}`);
+});
 
 app.post('/unlike-post', (req, res) => {
     unlikePost(req.body.post_id, req.body.email);

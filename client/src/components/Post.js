@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 
 import './Post.css';
+import Comment from './Comment';
 
 import { Avatar, Button } from '@material-ui/core';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+
+import FlipMove from 'react-flip-move';
 
 var relativeTime = require('dayjs/plugin/relativeTime')
 dayjs.extend(relativeTime)
@@ -17,14 +20,24 @@ function Post(props) {
     const [liked, setLiked] = useState(false);
     const [likes, setLikes] = useState(props.liked_by.length);
     const [commentHidden, setCommentHidden] = useState(true);
+    const [commentCount, setCommentCount] = useState(0);
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState([]);
     const [showDelete, setShowDelete] = useState(false);
 
     useEffect(() => {
         if (props.liked_by.includes(props.user.email)) {
-        setLiked(true)
-    }
+            setLiked(true)
+        };
+        if (commentCount === 0) {
+            setCommentCount(props.comments.length)
+        };
+        document.addEventListener('keydown', e => {
+            if (e.keyCode === 27) {
+                setCommentHidden(true);
+                setComments([]);
+            }
+        })
     })
 
     const likePost = () => {
@@ -61,15 +74,43 @@ function Post(props) {
         }
     }
 
-    const showComment = () => {
-        let visible = commentHidden;
-        setCommentHidden(!visible);
+    const getPostComments = () => {
+        fetch('/get-post-comments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                post_id: props.post_id
+            })
+        })
+        .then(response => {
+            return response.json();
+        })
+        .then(post_comments => {
+            setCommentCount(post_comments.length);
+            return setComments(post_comments);
+        })
+        .catch(error => console.log(error));
     }
+
+    const showComment = () => {
+        if (commentHidden) {
+            setCommentHidden(false);
+            if (props.comments.length > 0) {
+                getPostComments();
+            }
+        }
+        else {
+            setComments([]);
+            setCommentHidden(true);
+        }
+    };
 
     const sendComment = () => {
         const commentObject = {
             post_id: props.post_id,
-            username: props.user.username,
+            user: props.user,
             text: comment
         }
 
@@ -80,26 +121,27 @@ function Post(props) {
             },
             body: JSON.stringify(commentObject)
         })
-        .then(() => {
-            props.getPostComments()
-                .then(response => {
-                    console.log('response', response);
-                    setComments(response);
-                })
+        .then(response => {
+            return response.json();
+        })
+        .then(db_comment => {
+            let updated_comments = comments.slice();
+            updated_comments.unshift(db_comment);
+            setCommentCount(commentCount + 1);
+            setComments(updated_comments);
+            setComment('');
         })
         .catch(error => console.log(error));
 
         setComment('');
     }
 
-    const showDeleteButton = () => {
+    const toggleDeleteButton = () => {
         let visible = showDelete;
         setShowDelete(!visible);
     }
 
     const deletePost = () => {
-        console.log('we hit deletPost function')
-        console.log('props.post_id', props.post_id)
         fetch('/delete-post', {
             method: 'POST',
             headers: {
@@ -111,6 +153,7 @@ function Post(props) {
         })
         .then(() => {
             console.log(`Deleted post ${props.post_id}`);
+            toggleDeleteButton();
             props.getUserPosts();
         })
         .catch(error => {
@@ -120,7 +163,7 @@ function Post(props) {
   
     return (
         <div className='post'>
-            <div className='post-header'>
+            <header className='post-header'>
                 <Avatar className='post-avatar' src={props.user.avatar} />
                 <div className='post-header-text'>
                     <h3>{props.user.display_name}</h3>
@@ -130,21 +173,21 @@ function Post(props) {
                     <h4> • </h4>
                     <h5 id='timestamp'>{dayjs(props.timestamp).fromNow()}</h5>
                     <div className='delete'>
-                        <DeleteOutlineIcon 
-                        className='delete-post'
-                        onClick={showDeleteButton}
-                    />
+                        <MoreHorizIcon 
+                            id='post-options'
+                            onClick={toggleDeleteButton}
+                        />
                     </div>
                 </div>
                 {showDelete ? 
-                        <div className='post-options'>
+                        <div id='delete-post'>
                             <Button 
                                 className='delete-post-button'
                                 onClick={deletePost}
                             >Delete Post</Button>
                         </div> 
                         : null}
-            </div>
+            </header>
             <div className='post-text'>
                 <p>{props.text}</p>
             </div>
@@ -179,14 +222,21 @@ function Post(props) {
                     fontSize='small' 
                     onClick={showComment}
                 />
+                {props.comments.length > 0 ? 
+                    <div classname='comments-count'>
+                        {commentCount}
+                    </div>
+                    : null
+                }
                 {!commentHidden ? 
-                    <div className='comment'>
+                    <div className='comment-box'>
                         <Avatar id='avatar' src={props.user.avatar} />
                         <textarea 
                             autoFocus
                             className='comment-input' 
                             onChange={e => setComment(e.target.value)}
                             placeholder='Comment...' 
+                            value={comment}
                         />
                         <Button 
                             className='comment-button'
@@ -198,6 +248,26 @@ function Post(props) {
                     </div>
                 : null}
             </div>
+            {comments.length > 0 ? 
+                <FlipMove>
+                    <div className='comments'>
+                        {comments.map(post_comment => (
+                            <div className='comment' key={post_comment.comment_id}>
+                                <Comment 
+                                    comment_id={post_comment.comment_id}
+                                    comments={post_comment.comments}
+                                    getPostComments={getPostComments}
+                                    post_id={post_comment.post_id}
+                                    liked_by={post_comment.liked_by}
+                                    text={post_comment.text}
+                                    timestamp={post_comment.timestamp}
+                                    user={post_comment.user}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </FlipMove>
+                : null}
         </div>
     )
 };

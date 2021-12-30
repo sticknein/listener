@@ -1,0 +1,119 @@
+.comment {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    border-bottom: 1px solid var(--listener-grey);
+    margin-left: 50px;
+    font-size: 0.8rem;
+    min-width: 375px;
+}
+
+.comment-header {
+    display: flex;
+    margin-left: 10px;
+    margin-top: 10px;
+    width: 100%;
+    height: 40px;
+}
+
+.comment-footer {
+    display: flex;
+    height: 23px;
+    align-items: center;
+    margin-left: 63px;
+    margin-bottom: 10px;
+}
+
+.comment-header-text {
+    padding-left: 10px;
+    display: flex;
+    max-width: 200px !important;
+}
+
+.comment-username {
+    font-weight: 200;
+    color: rgb(48, 48, 48);
+    margin-left: 2px;
+    padding-left: 5px;
+}
+
+.comment-text {
+    margin-left: 63px;
+    display: flex;
+    width: 100%;
+}
+
+.sub-comment-box {
+    display: flex;
+    margin-left: 10px;
+    max-width: 20vw;
+    min-width: 350px;
+}
+
+.sub-comment-input {
+    width: 20vw;
+    margin-left: 10px;
+    outline: none;
+}
+
+.sub-comment-button {
+    background-color: var(--spotify-green) !important;
+    color: white !important;
+    font-size: 11px !important;
+    font-weight: 900 !important; 
+    width: 50px;
+    cursor: pointer;
+}
+
+#sub-comment-icon {
+    justify-content: center;
+    margin-left: 50px;
+    cursor: pointer;
+}
+
+#sub-comment-icon:hover {
+    opacity: 0.5;
+    background-color: rgb(123, 227, 123);
+    border-radius: 30px;
+    transition: color 100ms ease-out;
+}
+
+.comment-avatar {
+    height: 30px !important;
+    width: 30px !important;
+    margin-top: 7px;
+}
+
+#comment-timestamp {
+    font-size: 13px;
+    font-weight: 450;
+    padding-left: 5px;
+    min-width: 110px;
+    margin-top: 17px;
+}
+
+#comment-options {
+    margin-left: 145px;
+}
+
+#comment-options:hover {
+    color: red;
+    background-color: rgb(201, 144, 144);
+    border-radius: 30px;
+    transition: color 100ms ease-out;
+}
+
+.delete-comment-button {
+    background: red !important;
+    margin-left: 130px !important;
+    height: 20px;
+    margin-top: 3px !important;
+    border-radius: 30px;
+}
+
+.delete-comment-button:hover {
+    opacity: 0.5;
+    background-color: rgb(201, 144, 144);
+    transition: color 100ms ease-out;
+}
