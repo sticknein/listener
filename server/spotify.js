@@ -15,12 +15,16 @@ const Spotify = new SpotifyWebApi({
 const nowPlaying = () => {
     return Spotify.getMyCurrentPlaybackState()
                 .then(data => {
-                    console.log('spotify.js data', data)
                     return data;
+                })
+                .then(user => {
+                    user.json()
+                    console.log('spotify.js data', user)
                 })
                 .catch(error => console.log(error));
 }
 
 module.exports = {
-    nowPlaying
+    nowPlaying,
+    Spotify
 };

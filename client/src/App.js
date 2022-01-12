@@ -11,6 +11,7 @@ import EditAccount from './components/EditAccount';
 import Feed from './components/Feed';
 import Loading from './components/Loading';
 import Login from './components/Login';
+import Logout from './components/Logout';
 import Profile from './components/Profile';
 import Sidebar from './components/Sidebar';
 
@@ -18,11 +19,11 @@ function App(props) {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState(null);
+    const [hasAccount, setHasAccount] = useState(false);
 
     useEffect(() => {
         const localStorageUser = localStorage.getItem('user');
         const localStorageObject = JSON.parse(localStorageUser);
-        localStorageObject.has_account = true;
         if (!localStorageUser) {
             fetch('/get-user')
             .then(response => { 
@@ -33,6 +34,7 @@ function App(props) {
                 if (userObject !== null) {
                     localStorage.setItem('user', JSON.stringify(userObject));
                     setUser(userObject);
+                    setHasAccount(true);
                     setIsLoggedIn(true);
                     setIsLoading(false);
                 }
@@ -45,10 +47,29 @@ function App(props) {
         }
         else {
             setUser(localStorageObject);
+            setHasAccount(true);
             setIsLoggedIn(true);
             setIsLoading(false);
         }
     }, [])
+
+    const logout = () => {
+        fetch('/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },  
+            body: JSON.stringify({})
+        })
+            .then(() => {
+                localStorage.clear();
+                setUser(null)
+                setIsLoggedIn(false);
+                setIsLoading(false); 
+                window.location = '/';
+            })
+            .catch(error => console.log(error));
+    }
 
     if (isLoading) {
         return (
@@ -65,7 +86,7 @@ function App(props) {
             </div>
         )
     }
-    else if (isLoggedIn && !user.has_account) {
+    else if (isLoggedIn && !hasAccount) {
         return (
             <div className='setup'>
                 <EditAccount user={user} />
@@ -80,6 +101,7 @@ function App(props) {
                     <Switch>
                         <Route exact path='/' component={() => <Feed user={user} />} />
                         <Route path='/profile' component={() => <Profile user={user} />} />
+                        <Route path='/logout' component={() => <Logout logout={logout} />} />
                     </Switch>
                     <Route component={() => <Activity />} />  
                 </div>

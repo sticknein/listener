@@ -14,13 +14,28 @@
     margin-bottom: 20px;
 }
 
-.sidebar-post {
-    background-color: var(--spotify-green) !important;
+.logout {
+    margin-left: 20px;
+    width: 50%;
+    display: flex;
+}
+
+.logout-button {
+    background-color: red !important;
     border: none !important;
     color: white !important;
     font-weight: 900 !important;
     text-transform: inherit !important;
     border-radius: 30px !important;
-    height: 50px !important;
+    width: 80px;
+    height: 40px !important;
     margin-top: 20px !important;
+    margin-left: 40px !important;
+};
+
+.logout:hover {
+    background-color: rgb(199, 199, 199) !important;
+    border-radius: 30px !important;
+    color: var(--spotify-green) !important;
+    transition: color 100ms ease-out !important;
 }

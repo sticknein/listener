@@ -34,7 +34,8 @@ const {
 } = require('./firebase');
 
 const {
-    nowPlaying
+    nowPlaying,
+    Spotify
 } = require('./spotify')
 
 const serviceAccount = require(process.env.FIRESTORE_SERVICE_ACCOUNT)
@@ -125,8 +126,6 @@ app.get('/spotify-callback', async (req, res) => {
 
                     res.redirect('http://localhost:3000/')
                 } else {
-                    // res.cookie('user', JSON.stringify(user), { maxAge: SIX_MONTHS, httpOnly: true });
-
                     createUser(req.session.user)
                     res.redirect('http://localhost:3000/edit-account');
                 }
@@ -236,6 +235,11 @@ app.post('/like-post', (req, res) => {
     likePost(req.body.post_id, req.body.email);
     res.send(`Liked post ${req.body_post_id}`);
 });
+
+app.post('/logout', (req, res) => {
+    req.session.user = null;
+    res.send('Logged out!');
+})
 
 app.get('/now-playing', (req, res) => {
     nowPlaying()
