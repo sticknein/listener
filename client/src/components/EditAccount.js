@@ -24,7 +24,6 @@ function EditAccount(props) {
 
     const handleClick = e => {
         let userObject = {};
-        console.log(1)
         userObject.access_token = props.user.access_token;
         userObject.avatar = props.user.avatar;
         userObject.bio = bio;
@@ -34,26 +33,10 @@ function EditAccount(props) {
         userObject.has_account = true;
         userObject.last_online = props.user.last_online;
         userObject.username = username;
-        
-        console.log(2)
-
-        // const editUser = () => {
-        //     console.log('EditAccount.js editUser function triggered')
-        //     fetch('/edit-user', {
-        //         method: 'POST',
-        //         body: user
-        //     })
-        //     .then(() => {
-        //         console.log(`Edited user @${username}`);
-        //     })
-        //     .catch(error => console.log(error));
-        // }
 
         if (avatar) { 
-            console.log(4)
             const formData = new FormData();
             formData.append('file', avatar);
-            console.log(5)
             e.preventDefault();
             fetch('/upload-avatar', {
                 method: 'POST',
@@ -77,6 +60,7 @@ function EditAccount(props) {
                 })
                 .then(() => {
                     console.log(`Edited user @${username}`);
+                    localStorage.setItem('user', userFetchBody)
                     return window.location.assign('/');
                 })
                 .catch(error => console.log(error));
@@ -90,10 +74,11 @@ function EditAccount(props) {
             
             fetch('/edit-user', {
                 method: 'POST',
-                body: userObject
+                body: userFetchBody
             })
             .then(() => {
                 console.log(`Edited user @${username}`);
+                localStorage.setItem('user', userFetchBody)
                 return window.location.assign('/');
             })
             .catch(error => console.log(error));

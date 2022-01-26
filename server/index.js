@@ -40,8 +40,6 @@ const {
 
 const serviceAccount = require(process.env.FIRESTORE_SERVICE_ACCOUNT)
 
-// const { send } = require('process');
-
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 
@@ -51,6 +49,7 @@ const ref = admin.initializeApp({
 });
 
 const SIX_MONTHS = 15778800000;
+const ONE_HOUR = 60 * 60 * 1000;
 
 app.use(
     session({
@@ -78,6 +77,7 @@ app.get('/authorize', (req, res) => {
         'user-top-read', 
         'playlist-modify-public', 
         'user-read-currently-playing', 
+        'user-read-playback-state',
         'user-library-modify', 
         'user-read-email'
     ]
@@ -88,50 +88,60 @@ app.get('/authorize', (req, res) => {
     res.json(authorizeURL)
 });
 
-app.get('/spotify-callback', async (req, res) => {
+app.get('/spotify-callback', (req, res) => {
     const { code } = req.query;
-    const data = await Spotify.authorizationCodeGrant(code);
-    const { access_token, refresh_token } = data.body;
-    Spotify.setAccessToken(access_token);
-    Spotify.setRefreshToken(refresh_token);
 
-    Spotify.getMe()
-        .then(userResults => {
-            const username = userResults.body.display_name;
-            const email = userResults.body.email;
-            const prof_pic = userResults.body.images;
-            const today = new Date();
-            
-            const user = new User(
-                access_token,
-                avatar = '',
-                bio = '',
-                date_joined = today,
-                display_name = username, 
-                email,
-                has_account = false,
-                last_online = today,
-                username
-            );
+    Spotify.authorizationCodeGrant(code)
+        .then(data => {
+            const { access_token, refresh_token } = data.body;
 
-            req.session.user = user;
+            Spotify.setAccessToken(access_token);
+            Spotify.setRefreshToken(refresh_token);
 
-            getUser(user.email).then(response => {
-                if (response !== null) {
-                    user.avatar = response.avatar;
-                    user.bio = response.bio;
-                    user.date_joined = response.date_joined;
-                    user.has_account = true;
-                    user.username = response.username;
+            let tokens = {
+                access_token: access_token,
+                refresh_token: refresh_token,
+                expires_in: new Date().getTime() + ONE_HOUR
+            }
 
-                    res.redirect('http://localhost:3000/')
-                } else {
-                    createUser(req.session.user)
-                    res.redirect('http://localhost:3000/edit-account');
-                }
-            })
-        })
-        .catch(error => console.log(error));
+            Spotify.getMe()
+                .then(userResults => {
+                    const username = userResults.body.display_name;
+                    const email = userResults.body.email;
+                    const today = new Date();
+                    
+                    const user = new User(
+                        access_token,
+                        avatar = '',
+                        bio = '',
+                        date_joined = today,
+                        display_name = username, 
+                        email,
+                        has_account = false,
+                        last_online = today,
+                        username
+                    );
+                    
+                    user.tokens = tokens
+                    req.session.user = user;
+
+                    getUser(user.email).then(response => {
+                        if (response !== null) {
+                            user.avatar = response.avatar;
+                            user.bio = response.bio;
+                            user.date_joined = response.date_joined;
+                            user.has_account = true;
+                            user.username = response.username;
+
+                            res.redirect('http://localhost:3000/')
+                        } else {
+                            createUser(req.session.user)
+                            res.redirect('http://localhost:3000/edit-account');
+                        }
+                    })
+                })
+                .catch(error => console.log(error));
+        }).catch(error => console.log(error));
     }
 );
 
@@ -212,6 +222,7 @@ app.get('/get-user', (req, res) => {
                 if (response !== null) {
                     response.exists = true;
                 }
+                response.tokens = req.session.user.tokens;
                 req.session.user = response;
                 res.json(req.session.user);
             })
@@ -239,16 +250,35 @@ app.post('/like-post', (req, res) => {
 app.post('/logout', (req, res) => {
     req.session.user = null;
     res.send('Logged out!');
-})
+});
 
 app.get('/now-playing', (req, res) => {
-    nowPlaying()
-        .then(response => {
-            console.log('index.js response', response);
-            res.send(response)
-        })
-        .catch(error => console.log(error));
-});
+    if (req.session.user.tokens.expires_in < new Date().getTime()) {
+        Spotify.setRefreshToken(req.session.user.tokens.refresh_token);
+        Spotify.refreshAccessToken()
+            .then(data => {
+                req.session.user.tokens.access_token = data.body.access_token;
+                req.session.user.tokens.expires_in = new Date().getTime() + ONE_HOUR;
+                console.log('The access token has been refreshed.');
+                return Spotify.setAccessToken(data.body['access_token'])
+            })
+            .then(() => {
+                nowPlaying(req.session.user.tokens)
+                    .then(response => {
+                        res.json(response);
+                    })
+                    .catch(error => console.log(error));
+            })
+            .catch(error => console.log(error));
+    }
+    else {
+        nowPlaying(req.session.user.tokens)
+            .then(response => {
+                res.json(response);
+            })
+            .catch(error => console.log(error));
+    }
+})
 
 app.post('/send-comment', (req, res) => {
     const comment = new Comment(
@@ -273,6 +303,11 @@ app.post('/send-post', (req, res) => {
     
     sendPost(post);
 });
+
+app.post('/set-user', (req, res) => {
+    req.session.user = req.body;
+    res.send('Set user')
+})
 
 app.post('/unlike-comment', (req, res) => {
     unlikeComment(req.body.comment_id, req.body.email);

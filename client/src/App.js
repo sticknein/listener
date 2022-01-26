@@ -6,12 +6,12 @@ import {
 } from 'react-router-dom';
 
 import './App.css';
-import Activity from './components/Activity';
 import EditAccount from './components/EditAccount';
 import Feed from './components/Feed';
 import Loading from './components/Loading';
 import Login from './components/Login';
 import Logout from './components/Logout';
+import NowPlaying from './components/NowPlaying';
 import Profile from './components/Profile';
 import Sidebar from './components/Sidebar';
 
@@ -19,38 +19,47 @@ function App(props) {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState(null);
-    const [hasAccount, setHasAccount] = useState(false);
 
     useEffect(() => {
         const localStorageUser = localStorage.getItem('user');
         const localStorageObject = JSON.parse(localStorageUser);
         if (!localStorageUser) {
             fetch('/get-user')
-            .then(response => { 
-                const data = response.json();
-                return data;
-            })
-            .then(userObject => {
-                if (userObject !== null) {
-                    localStorage.setItem('user', JSON.stringify(userObject));
-                    setUser(userObject);
-                    setHasAccount(true);
-                    setIsLoggedIn(true);
-                    setIsLoading(false);
-                }
-                else {
-                    setIsLoggedIn(false);
-                    setIsLoading(false);
-                }
-            })
-            .catch(error => console.log(error));
-        }
-        else {
-            setUser(localStorageObject);
-            setHasAccount(true);
-            setIsLoggedIn(true);
-            setIsLoading(false);
-        }
+                .then(response => { 
+                    const data = response.json();
+                    return data;
+                })
+                .then(userObject => {
+                    if (userObject !== null) {
+                        localStorage.setItem('user', JSON.stringify(userObject));
+                        setUser(userObject);
+                        setIsLoggedIn(true);
+                        setIsLoading(false);
+                    }
+                    else {
+                        setIsLoggedIn(false);
+                        setIsLoading(false);
+                    }
+                })
+                .catch(error => console.log(error));
+            }
+            else {
+                fetch('/set-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: localStorageUser
+                })
+                    .then(() => {
+                        setUser(localStorageObject);
+                        setIsLoggedIn(true);
+                        setIsLoading(false);
+                    })
+                    .catch(error => console.log(error));
+
+
+            }
     }, [])
 
     const logout = () => {
@@ -63,7 +72,7 @@ function App(props) {
         })
             .then(() => {
                 localStorage.clear();
-                setUser(null)
+                setUser({})
                 setIsLoggedIn(false);
                 setIsLoading(false); 
                 window.location = '/';
@@ -86,7 +95,7 @@ function App(props) {
             </div>
         )
     }
-    else if (isLoggedIn && !hasAccount) {
+    if (isLoggedIn && !user.has_account) {
         return (
             <div className='setup'>
                 <EditAccount user={user} />
@@ -103,7 +112,7 @@ function App(props) {
                         <Route path='/profile' component={() => <Profile user={user} />} />
                         <Route path='/logout' component={() => <Logout logout={logout} />} />
                     </Switch>
-                    <Route component={() => <Activity />} />  
+                    <Route component={() => <NowPlaying user={user}/>} />  
                 </div>
             </Router>
         );
