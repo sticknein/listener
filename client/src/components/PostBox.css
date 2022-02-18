@@ -21,6 +21,7 @@
     border: none;
     resize: none;
     outline: none;
+    font-family: 'Roboto', sans-serif;
 }
 
 .post-button {

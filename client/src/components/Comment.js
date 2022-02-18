@@ -82,7 +82,7 @@ function Comment(props) {
             <header className='comment-header'>
                 <Avatar className='comment-avatar' src={props.user.avatar} />
                 <div className='comment-header-text'>
-                    <h3>{props.user.display_name}</h3>
+                    <h3 className='comment-display-name'>{props.user.display_name}</h3>
                     <h4 className='comment-username'>@{props.user.username}</h4>
                     <h4> • </h4>
                     <h5 id='comment-timestamp'>{dayjs(props.timestamp).fromNow()}</h5>

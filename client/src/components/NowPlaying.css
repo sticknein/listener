@@ -29,7 +29,8 @@
 }
 
 .now-playing-username {
-    margin-left: 50%;
+    margin-left: 40%;
+    margin-right: 5px;
 }
 
 .now-playing-track, .now-playing-artist, .now-playing-album {

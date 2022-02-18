@@ -30,7 +30,7 @@ function Post(props) {
             setLiked(true)
         };
         if (commentCount === 0) {
-            setCommentCount(props.comments.length)
+            setCommentCount(props.comments)
         };
         document.addEventListener('keydown', e => {
             if (e.keyCode === 27) {
@@ -97,7 +97,7 @@ function Post(props) {
     const showComment = () => {
         if (commentHidden) {
             setCommentHidden(false);
-            if (props.comments.length > 0) {
+            if (props.comments > 0) {
                 getPostComments();
             }
         }
@@ -113,7 +113,7 @@ function Post(props) {
             user: props.user,
             text: comment
         }
-
+        console.log(1)
         fetch('/send-comment', {
             method: 'POST',
             headers: {
@@ -121,17 +121,19 @@ function Post(props) {
             },
             body: JSON.stringify(commentObject)
         })
-        .then(response => {
-            return response.json();
-        })
-        .then(db_comment => {
-            let updated_comments = comments.slice();
-            updated_comments.unshift(db_comment);
-            setCommentCount(commentCount + 1);
-            setComments(updated_comments);
-            setComment('');
-        })
-        .catch(error => console.log(error));
+            .then(response => {
+                console.log(2)
+                return response.json();
+            })
+            .then(db_comment => {
+                console.log(3)
+                let updated_comments = comments.slice();
+                updated_comments.unshift(db_comment);
+                setCommentCount(commentCount + 1);
+                setComments(updated_comments);
+                setComment('');
+            })
+            .catch(error => console.log(error));
 
         setComment('');
     }
@@ -166,7 +168,9 @@ function Post(props) {
             <header className='post-header'>
                 <Avatar className='post-avatar' src={props.user.avatar} />
                 <div className='post-header-text'>
-                    <h3>{props.user.display_name}</h3>
+                    <h3 className='post-display-name'>
+                        {props.user.display_name}
+                    </h3>
                     <h4 className='post-username'>
                         @{props.user.username}
                     </h4>
@@ -222,7 +226,7 @@ function Post(props) {
                     fontSize='small' 
                     onClick={showComment}
                 />
-                {props.comments.length > 0 ? 
+                {props.comments > 0 ? 
                     <div classname='comments-count'>
                         {commentCount}
                     </div>

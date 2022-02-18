@@ -111,7 +111,6 @@ app.get('/spotify-callback', (req, res) => {
                     const today = new Date();
                     
                     const user = new User(
-                        access_token,
                         avatar = '',
                         bio = '',
                         date_joined = today,
@@ -119,10 +118,10 @@ app.get('/spotify-callback', (req, res) => {
                         email,
                         has_account = false,
                         last_online = today,
+                        tokens,
                         username
                     );
                     
-                    user.tokens = tokens
                     req.session.user = user;
 
                     getUser(user.email).then(response => {
@@ -206,10 +205,18 @@ app.post('/edit-user', (req, res) => {
     res.send(req.session.user)
 });
 
+// app.post('/get-post-comments', (req, res) => {
+//     getPostComments(req.body.post_id, response => {
+//         res.send(response);
+//     })
+// });
+
 app.post('/get-post-comments', (req, res) => {
-    getPostComments(req.body.post_id, response => {
-        res.send(response);
-    })
+    getPostComments(req.body.post_id)
+        .then(comments => {
+            res.send(comments);
+        })
+        .catch(error => console.log(error));
 });
 
 app.get('/get-user', (req, res) => {
@@ -231,11 +238,12 @@ app.get('/get-user', (req, res) => {
 });
 
 app.get('/get-user-posts', (req, res) => {
-    getUserPosts(req.session.user, postsArray => {
-        res.send(postsArray);
-    });
-    
-});
+    getUserPosts(req.session.user)
+        .then(posts => {
+            res.send(posts)
+        })
+        .catch(error => console.log(error));
+})
 
 app.post('/like-comment', (req, res) => {
     likeComment(req.body.comment_id, req.body.email);
@@ -253,14 +261,19 @@ app.post('/logout', (req, res) => {
 });
 
 app.get('/now-playing', (req, res) => {
-    if (req.session.user.tokens.expires_in < new Date().getTime()) {
+    const now = new Date().getTime();
+    console.log(req.session.user.tokens.expires_in - now)
+    console.log(req.session.user.tokens.expires_in)
+    if (req.session.user.tokens.expires_in < now) {
         Spotify.setRefreshToken(req.session.user.tokens.refresh_token);
         Spotify.refreshAccessToken()
             .then(data => {
                 req.session.user.tokens.access_token = data.body.access_token;
-                req.session.user.tokens.expires_in = new Date().getTime() + ONE_HOUR;
+                req.session.user.tokens.expires_in = (now + ONE_HOUR);
+                console.log(req.session.user.tokens.expires_in - now)
+                console.log(req.session.user.tokens.expires_in)
                 console.log('The access token has been refreshed.');
-                return Spotify.setAccessToken(data.body['access_token'])
+                return Spotify.setAccessToken(data.body.access_token)
             })
             .then(() => {
                 nowPlaying(req.session.user.tokens)

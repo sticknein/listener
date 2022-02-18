@@ -25,7 +25,6 @@ const storageRef = storage.ref();
 
 class Comment {
     constructor(post_id, user, text) {
-        this.comments = [];
         this.liked_by = [];
         this.post_id = post_id;
         this.text = text;
@@ -39,7 +38,7 @@ class Comment {
 
 class Post {
     constructor (user, text, link) {
-        this.comments = [];
+        this.comments = 0;
         this.liked_by = [];
         this.link = link;
         this.text = text;
@@ -52,8 +51,7 @@ class Post {
 };
 
 class User {
-    constructor (access_token, avatar, bio, date_joined, display_name, email, has_account, last_online, username) {
-        this.access_token = access_token;
+    constructor (avatar, bio, date_joined, display_name, email, has_account, last_online, tokens, username) {
         this.avatar = avatar;
         this.bio = bio;
         this.date_joined = date_joined;
@@ -61,6 +59,7 @@ class User {
         this.email = email;
         this.has_account = has_account;
         this.last_online = last_online;
+        this.tokens = tokens;
         this.username = username;
     }
     object() {
@@ -73,7 +72,6 @@ class User {
 const commentConverter = {
     toFirestore: comment => {
         return {
-            comments: comment.comments,
             liked_by: comment.liked_by,
             post_id: comment.post_id,
             text: comment.text,
@@ -84,7 +82,6 @@ const commentConverter = {
     fromFirestore: (snapshot, options) => {
         const data = snapshot.data(options);
         return new Comment(
-            data.comments,
             data.liked_by,
             data.post_id,
             data.text,
@@ -121,7 +118,6 @@ const postConverter = {
 const userConverter = {
     toFirestore: user => {
         return {
-            access_token: user.access_token,
             avatar: user.avatar,
             bio: user.bio,
             date_joined: user.date_joined,
@@ -129,13 +125,13 @@ const userConverter = {
             email: user.email,
             has_account: user.has_account,
             last_online: user.last_online,
+            tokens: user.tokens,
             username: user.username
         };
     },
     fromFirestore: (snapshot, options) => {
         const data = snapshot.data(options);
         return new User(
-            data.access_token, 
             data.avatar,
             data.bio, 
             data.date_joined, 
@@ -143,6 +139,7 @@ const userConverter = {
             data.email, 
             data.has_account,
             data.last_online, 
+            data.tokens,
             data.username
         );
     }
@@ -189,23 +186,23 @@ const editUser = user => {
         .set(user)
 };
 
-const getPostComments = (post_id, callback) => {
-    db.collection('comments').where('post_id', '==', post_id)
+const getPostComments = async post_id => {
+    return db.collection('comments').where('post_id', '==', post_id)
         .get()
         .then(comments => {
-            let commentsArray = comments.docs.map(doc => {
+            let comments_array = comments.docs.map(doc => {
                 let comment = doc.data();
                 const comment_id = doc.id;
                 comment = { comment_id, ...comment };
-                return comment
+                return comment;
             });
-            commentsArray.sort((x, y) => {
+            comments_array.sort((x, y) => {
                 return new Date(y.timestamp) - new Date(x.timestamp);
             });
-            callback(commentsArray)
+            return comments_array;
         })
         .catch(error => console.log(error));
-};
+}
 
 const getUser = email => {
     return db.collection('users').doc(email)
@@ -221,22 +218,22 @@ const getUser = email => {
             .catch(error => console.log(error));
 }
 
-const getUserPosts = (user, callback) => {
-    db.collection('posts').get()
+const getUserPosts = async user => {
+    return db.collection('posts').get()
         .then(posts => {
             let userPosts = posts.docs.map(doc => {
                 let post = doc.data();
                 const post_id = doc.id;
-                post = { post_id, ...post }
-                return post;
+                post = { post_id, ...post };
+                return post
             });
             userPosts.sort((x, y) => {
                 return new Date(y.timestamp) - new Date(x.timestamp);
             })
-            callback(userPosts)
+            return userPosts;
         })
         .catch(error => console.log(error));
-};
+}
 
 const likeComment = (comment_id, email) => {
     db.collection('comments').doc(comment_id).update({
@@ -250,19 +247,47 @@ const likePost = (post_id, email) => {
     });
 };
 
+// const sendComment = comment => {
+//     return db.collection('comments').doc()
+//         .withConverter(commentConverter)
+//         .set(comment)
+//         .then(() => {
+//             getPostComments(comment.post_id, comments => {
+//                 const comment_id = comments[comments.length - 1].comment_id;
+//                 return db.collection('posts').doc(comment.post_id).update({
+//                     comments: firebase.firestore.FieldValue.arrayUnion(comment_id)
+//                 })
+//                 .then(() => {
+//                     comment = { comment_id, ...comment }; 
+//                     console.log(comment)
+//                     return comment
+//                 })
+//                 .catch(error => console.log(error));
+//             })
+//         })
+//         .catch(error => console.log(error));
+// };
+
 const sendComment = comment => {
     return db.collection('comments').doc()
         .withConverter(commentConverter)
         .set(comment)
         .then(() => {
-           const comment_id = db.collection('comments').doc().id;
-           db.collection('posts').doc(comment.post_id).update({
-               comments: firebase.firestore.FieldValue.arrayUnion(comment_id)
-           })
-           comment = { comment_id, ...comment }; 
-           return comment
+            getPostComments(comment.post_id)
+                .then(comments => {
+                    const comment_id = comments[comments.length - 1].comment_id;
+                    return db.collection('posts').doc(comment.post_id).update({
+                        comments: firebase.firestore.FieldValue.increment(1)
+                    })
+                    .then(() => {
+                        comment = { comment_id, ...comment }
+                        return comment;
+                    })
+                    .catch(error => console.log(error));
+                })
+                .catch(error => console.log(error));
         })
-};
+}
 
 const sendPost = post => {
     db.collection('posts').doc()

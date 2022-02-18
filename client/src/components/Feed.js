@@ -42,8 +42,8 @@ function Feed(props) {
             .then(posts => {
                 let all_comments = [];
                 posts.forEach(post => {
-                    if (post.comments.length > 0) {
-                        for (let i = 0; i < post.comments.length; i++) {
+                    if (post.comments > 0) {
+                        for (let i = 0; i < post.comments; i++) {
                             all_comments.push(post.comments[i])
                         }
                     }

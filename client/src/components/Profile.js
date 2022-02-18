@@ -8,15 +8,6 @@ function Profile(props) {
     const [posts, setPosts] = useState(null);
     const [commentHidden, setCommentHidden] = useState(true);
 
-    // useEffect(() => {
-    //     fetch('/get-user-posts')
-    //         .then(posts => posts.json())
-    //         .then(jsonPosts => {
-    //             console.log('Profile.js jsonPosts', jsonPosts)
-    //             setPosts(jsonPosts)
-    //         })
-    // }, []);
-
     const getUserPosts = () => {
         fetch('/get-user-posts')
             .then(response => {
@@ -25,8 +16,8 @@ function Profile(props) {
             .then(posts => {
                 let all_comments = [];
                 posts.forEach(post => {
-                    if (post.comments.length > 0) {
-                        for (let i = 0; i < post.comments.length; i++) {
+                    if (post.comments > 0) {
+                        for (let i = 0; i < post.comments; i++) {
                             all_comments.push(post.comments[i])
                         }
                     }

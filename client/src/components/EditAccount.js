@@ -24,7 +24,6 @@ function EditAccount(props) {
 
     const handleClick = e => {
         let userObject = {};
-        userObject.access_token = props.user.access_token;
         userObject.avatar = props.user.avatar;
         userObject.bio = bio;
         userObject.date_joined = props.user.date_joined;
@@ -32,6 +31,7 @@ function EditAccount(props) {
         userObject.email = props.user.email;
         userObject.has_account = true;
         userObject.last_online = props.user.last_online;
+        userObject.tokens = props.user.tokens;
         userObject.username = username;
 
         if (avatar) { 

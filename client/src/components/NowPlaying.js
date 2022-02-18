@@ -4,7 +4,7 @@ import './NowPlaying.css';
 
 import { Avatar } from '@material-ui/core';
 
-function Activity(props) {
+function NowPlaying(props) {
     const empty = {
         album: {
             name: '', 
@@ -12,11 +12,11 @@ function Activity(props) {
             images: [{url: ''}]
         }, 
         artists: [{name: '', external_urls: {spotify: ''}}], 
+        external_urls: {spotify: ''},
         name: '', external_urls: {spotify: ''}
     }
 
     const [nowPlaying, setNowPlaying] = useState(empty);
-    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         fetch('/now-playing')
@@ -24,7 +24,6 @@ function Activity(props) {
                 return response.json()
             })
             .then(playback => {
-                console.log(playback)
                 setNowPlaying(playback)
             })
             .catch(error => console.log(error));
@@ -52,4 +51,4 @@ function Activity(props) {
     )
 }
 
-export default Activity;
+export default NowPlaying;
