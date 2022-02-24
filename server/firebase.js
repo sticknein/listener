@@ -273,7 +273,7 @@ const sendComment = comment => {
         .withConverter(commentConverter)
         .set(comment)
         .then(() => {
-            getPostComments(comment.post_id)
+            return getPostComments(comment.post_id)
                 .then(comments => {
                     const comment_id = comments[comments.length - 1].comment_id;
                     return db.collection('posts').doc(comment.post_id).update({

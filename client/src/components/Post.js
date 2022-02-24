@@ -122,14 +122,16 @@ function Post(props) {
             body: JSON.stringify(commentObject)
         })
             .then(response => {
-                console.log(2)
                 return response.json();
             })
             .then(db_comment => {
-                console.log(3)
                 let updated_comments = comments.slice();
                 updated_comments.unshift(db_comment);
-                setCommentCount(commentCount + 1);
+                console.log('commentCount 1', commentCount)
+                const incr_count = commentCount + 1;
+                setCommentCount(incr_count);
+                console.log('commentCount 2', commentCount)
+                console.log('incr_count', incr_count)
                 setComments(updated_comments);
                 setComment('');
             })
@@ -226,7 +228,8 @@ function Post(props) {
                     fontSize='small' 
                     onClick={showComment}
                 />
-                {props.comments > 0 ? 
+
+                {commentCount > 0 ? 
                     <div classname='comments-count'>
                         {commentCount}
                     </div>

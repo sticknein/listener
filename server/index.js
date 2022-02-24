@@ -262,20 +262,20 @@ app.post('/logout', (req, res) => {
 
 app.get('/now-playing', (req, res) => {
     const now = new Date().getTime();
-    console.log(req.session.user.tokens.expires_in - now)
-    console.log(req.session.user.tokens.expires_in)
+    console.log('/now-playing exp 0', (req.session.user.tokens.expires_in - now))
     if (req.session.user.tokens.expires_in < now) {
         Spotify.setRefreshToken(req.session.user.tokens.refresh_token);
         Spotify.refreshAccessToken()
             .then(data => {
                 req.session.user.tokens.access_token = data.body.access_token;
+                console.log('/now-playing exp 1', (req.session.user.tokens.expires_in - now))
                 req.session.user.tokens.expires_in = (now + ONE_HOUR);
-                console.log(req.session.user.tokens.expires_in - now)
-                console.log(req.session.user.tokens.expires_in)
+                console.log('/now-playing exp 2', (req.session.user.tokens.expires_in - now))
                 console.log('The access token has been refreshed.');
                 return Spotify.setAccessToken(data.body.access_token)
             })
             .then(() => {
+                console.log('/now-playing exp 3', (req.session.user.tokens.expires_in - now))
                 nowPlaying(req.session.user.tokens)
                     .then(response => {
                         res.json(response);

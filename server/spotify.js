@@ -17,7 +17,7 @@ const nowPlaying = tokens => {
     Spotify.setRefreshToken(tokens.refresh_token);
     return Spotify.getMyCurrentPlayingTrack()
                 .then(data => {
-                    if (data !== {}) {
+                    if (data !== {} && data.body.item !==  null) {
                         return data.body.item 
                     }
                     else {

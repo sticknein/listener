@@ -2,7 +2,6 @@
     display: flex;
     flex-direction: column;
     border-bottom: 1px solid var(--listener-grey);
-    /* width: 10vw; */
     height: auto;
 }
 
@@ -137,13 +136,16 @@ textarea {
 }
 
 .delete-post-button {
-    padding: 8px !important;
+    padding: 4px !important;
     background: red !important;
     color: white !important;
     border-radius: 30px !important;
-    margin-left: 99% !important;
-    min-width: 120px !important;
+    position:relative;
+    top: 10px;
+    left: 235%;
+    min-width: 80px !important;
     cursor: pointer;
+    font-size: 0.7rem !important;
 }
 
 .delete-post-button:hover {
@@ -154,9 +156,9 @@ textarea {
 }
 
 .delete {
-    position: absolute;
+    position: relative;
     top: 10px;
-    right: 15px;
+    left: 90%;
 }
 
 .comments {
