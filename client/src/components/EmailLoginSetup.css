@@ -1,0 +1,31 @@
+.email-password-setup {
+    background: linear-gradient(45deg, var(--spotify-green), var(--listener-grey));
+    width: 100vw;
+    height: 100vw;
+}
+
+.email-password-container {
+    border: solid black 1px;
+    width: 600px;
+    position: absolute;
+    left: 33%;
+    top: 20%;
+    box-shadow: 5px 5px 5px grey;
+    border-radius: 10px;
+    background-color: rgb(221, 221, 221, 0.8);
+    padding-bottom: 30px;
+}
+
+.email-form {
+    text-align: center;
+}
+
+#email-login-button {
+    background-color: var(--spotify-green) !important;
+    margin-left: 5px;
+}
+
+#email-login-cancel-button {
+    background-color: red !important;
+    margin-right: 5px;
+}

@@ -23,7 +23,8 @@ function Comment(props) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                comment_id: props.comment_id
+                comment_id: props.comment_id,
+                post_id: props.post_id
             })
         })
         .then(() => {

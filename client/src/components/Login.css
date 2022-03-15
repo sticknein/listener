@@ -5,26 +5,48 @@
     background: linear-gradient(45deg, var(--spotify-green), var(--listener-grey));
 }
 
-#loginContainer {
-    position: relative;
-    top: 40%;
+#login-container {
+    border: solid black 1px;
+    width: 600px;
+    position: absolute;
+    left: 33%;
+    top: 25%;
+    box-shadow: 5px 5px 5px grey;
+    border-radius: 10px;
+    background-color: rgb(221, 221, 221, 0.8);
+    padding-bottom: 10px;
+    height: 50%;
+    align-items: center;
 }
 
-h1 {
-    margin: 30px;
-    top: 50%;
+.login-sub-container {
+    text-align: center;
+    margin-top: 20%;
 }
 
-h2 {
-    margin: 30px;
-}
-
-#loginButton {
+#login-button {
     margin: 10px;
-    background: linear-gradient(var(--listener-grey), darkgrey);
+    background-color: var(--spotify-green);
     border-radius: 30px;
     width: 250px;
     height: auto;
     font-weight: 900;
 }
 
+.email-login {
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+}
+
+#email-password-login-button {
+    font-weight: 500;
+    border-radius: 30px;
+    height: 30px;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+#email-password-login-button:hover {
+    background-color: var(--spotify-green);
+}

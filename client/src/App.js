@@ -14,8 +14,12 @@ import Logout from './components/Logout';
 import NowPlaying from './components/NowPlaying';
 import Profile from './components/Profile';
 import Sidebar from './components/Sidebar';
+import EmailLoginSetup from './components/EmailLoginSetup';
+import EmailLogin from './components/EmailLogin';
 
 function App(props) {
+    const [createAccount, setCreateAccount] = useState(false);
+    const [hasSpotify, setHasSpotify] = useState(true);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState(null);
@@ -23,8 +27,8 @@ function App(props) {
     useEffect(() => {
         const localStorageUser = localStorage.getItem('user');
         const localStorageObject = JSON.parse(localStorageUser);
-        if (!localStorageUser) {
-            fetch('/get-user')
+        if (!user && !localStorageUser) {
+            fetch('/check-user')
                 .then(response => { 
                     const data = response.json();
                     return data;
@@ -43,7 +47,7 @@ function App(props) {
                 })
                 .catch(error => console.log(error));
             }
-            else {
+            else if (!user && localStorageUser) {
                 fetch('/set-user', {
                     method: 'POST',
                     headers: {
@@ -57,10 +61,45 @@ function App(props) {
                         setIsLoading(false);
                     })
                     .catch(error => console.log(error));
-
-
+            } else {
+                console.log('There\'s a user up in this piece')
             }
     }, [])
+
+    const emailLogin = () => {
+        setHasSpotify(false);
+    }
+
+    const cancelEmailLogin = () => {
+        setCreateAccount(false);
+        setHasSpotify(true);
+        setIsLoggedIn(false);
+    }
+
+    const setupEmailLogin = () => {
+        setHasSpotify(false);
+        setCreateAccount(true);
+    }
+
+    const loginUser = email => {
+        return fetch('/get-user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email
+            })
+        })
+        .then(response => {
+            return response.json();
+        })
+        .then(db_user => {
+            localStorage.setItem('user', JSON.stringify(db_user));
+            setUser(db_user);
+            setIsLoggedIn(true);
+        })
+    }
 
     const logout = () => {
         fetch('/logout', {
@@ -87,11 +126,30 @@ function App(props) {
             </div>
         )
     }
-
-    if (!isLoggedIn) {
+    if (!isLoggedIn && hasSpotify) {
         return (
             <div className='login'>
-                <Login />
+                <Login emailLogin={emailLogin} />
+            </div>
+        )
+    }
+    if (!isLoggedIn && !hasSpotify && !createAccount) {
+        return (
+            <div className='email-login'>
+                <EmailLogin 
+                    cancelEmailLogin={cancelEmailLogin} 
+                    setupEmailLogin={setupEmailLogin}
+                    loginUser={loginUser}
+                />
+            </div>
+        )
+    }
+    if (!isLoggedIn && !hasSpotify && createAccount) {
+        return (
+            <div className='setup-email-password-account'>
+                <EmailLoginSetup 
+                    cancelEmailLogin={cancelEmailLogin}
+                />    
             </div>
         )
     }

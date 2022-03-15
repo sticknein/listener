@@ -16,6 +16,7 @@ const {
     deleteComment,
     deletePost,
     editUser,
+    emailPasswordLogin,
     getPostComments,
     getUser,
     getUserPosts,
@@ -116,6 +117,7 @@ app.get('/spotify-callback', (req, res) => {
                         date_joined = today,
                         display_name = username, 
                         email,
+                        password = '',
                         has_account = false,
                         last_online = today,
                         tokens,
@@ -146,80 +148,13 @@ app.get('/spotify-callback', (req, res) => {
 
 // ENDPOINTS
 
-app.get('/check-user', (req, res) => {
-    userExists(req.session.user, response => {
-        res.send(response);
-    });
-});
-
-app.post('/create-account', upload.single('file'), (req, res) => {
-    let user = {
-        access_token: req.body.access_token,
-        avatar: '',
-        bio: req.body.bio,
-        date_joined: new Date(),
-        display_name: req.body.display_name,
-        email: req.body.email,
-        last_online: new Date(),
-        username: req.body.username
-    }
-
-    return createUser(user)
-        .then(() => {
-
-            uploadAvatar(req.file, req.session.user.username, response => {
-                    let avatar = response;
-
-                    let user = {
-                        access_token: req.body.access_token,
-                        avatar: avatar,
-                        bio: req.body.bio,
-                        display_name: req.body.display_name,
-                        email: req.body.email,
-                        username: req.body.username
-                    }
-
-                    req.session.user.avatar = user.avatar;
-
-                    updateUser(user)
-                        .then(() => {
-                            res.send(user)
-                        }).catch(error => console.log(error));
-        })
-    })
-});
-
-app.post('/delete-comment', (req, res) => {
-    deleteComment(req.body.comment_id);
-    res.send(`Deleted comment ${req.body.comment_id}`);
-});
-
-app.post('/delete-post', (req, res) => {
-    deletePost(req.body.post_id);
-    res.send(`Deleted post ${req.body.post_id}`);
-})
-
-app.post('/edit-user', (req, res) => {
-    editUser(req.body)
-    req.session.user = req.body;
-    res.send(req.session.user)
-});
-
-// app.post('/get-post-comments', (req, res) => {
-//     getPostComments(req.body.post_id, response => {
+// app.get('/check-user', (req, res) => {
+//     userExists(req.session.user, response => {
 //         res.send(response);
-//     })
+//     });
 // });
 
-app.post('/get-post-comments', (req, res) => {
-    getPostComments(req.body.post_id)
-        .then(comments => {
-            res.send(comments);
-        })
-        .catch(error => console.log(error));
-});
-
-app.get('/get-user', (req, res) => {
+app.get('/check-user', (req, res) => {
     if (!req.session.user) {
         res.json(null);
     }
@@ -236,6 +171,74 @@ app.get('/get-user', (req, res) => {
             .catch(error => console.log(error));
     }
 });
+
+app.post('/create-user', (req, res) => {
+    let user = req.body;
+
+    req.session.user = user;
+
+    createUser(user)
+
+    res.send('User created!')
+})
+
+app.post('/delete-comment', (req, res) => {
+    deleteComment(req.body.comment_id, req.body.post_id);
+    res.send(`Deleted comment ${req.body.comment_id}`);
+});
+
+app.post('/delete-post', (req, res) => {
+    deletePost(req.body.post_id);
+    res.send(`Deleted post ${req.body.post_id}`);
+})
+
+app.post('/edit-user', (req, res) => {
+    editUser(req.body)
+    req.session.user = req.body;
+    res.send(req.session.user)
+});
+
+app.post('/email-password-login', (req, res) => {
+    return emailPasswordLogin(req.body.email, req.body.password)
+        .then(response => {
+            res.send(response);
+        })
+})
+
+app.post('/get-post-comments', (req, res) => {
+    getPostComments(req.body.post_id)
+        .then(comments => {
+            res.send(comments);
+        })
+        .catch(error => console.log(error));
+});
+
+// app.get('/get-user', (req, res) => {
+//     if (!req.session.user) {
+//         res.json(null);
+//     }
+//     else {
+//         getUser(req.session.user.email)
+//             .then(response => {
+//                 if (response !== null) {
+//                     response.exists = true;
+//                 }
+//                 response.tokens = req.session.user.tokens;
+//                 req.session.user = response;
+//                 res.json(req.session.user);
+//             })
+//             .catch(error => console.log(error));
+//     }
+// });
+
+app.post('/get-user', (req, res) => {
+    return getUser(req.body.email)
+        .then(response => {
+            req.session.user = response;
+            res.json(req.session.user);
+        })
+        .catch(error => console.log(error));
+})
 
 app.get('/get-user-posts', (req, res) => {
     getUserPosts(req.session.user)
@@ -262,20 +265,25 @@ app.post('/logout', (req, res) => {
 
 app.get('/now-playing', (req, res) => {
     const now = new Date().getTime();
-    console.log('/now-playing exp 0', (req.session.user.tokens.expires_in - now))
+    console.log('exp', req.session.user.tokens.expires_in);
+    console.log('now', now);
+    console.log('difference', (req.session.user.tokens.expires_in - now))
+    if (req.session.user.tokens.expires_in < now) {
+        console.log('less than!')
+    }
+    else {
+        console.log('more than!')
+    }
     if (req.session.user.tokens.expires_in < now) {
         Spotify.setRefreshToken(req.session.user.tokens.refresh_token);
         Spotify.refreshAccessToken()
             .then(data => {
                 req.session.user.tokens.access_token = data.body.access_token;
-                console.log('/now-playing exp 1', (req.session.user.tokens.expires_in - now))
                 req.session.user.tokens.expires_in = (now + ONE_HOUR);
-                console.log('/now-playing exp 2', (req.session.user.tokens.expires_in - now))
                 console.log('The access token has been refreshed.');
                 return Spotify.setAccessToken(data.body.access_token)
             })
             .then(() => {
-                console.log('/now-playing exp 3', (req.session.user.tokens.expires_in - now))
                 nowPlaying(req.session.user.tokens)
                     .then(response => {
                         res.json(response);
@@ -332,12 +340,23 @@ app.post('/unlike-post', (req, res) => {
     res.send(`Unliked post ${req.body.post_id}`)
 })
 
-app.post('/upload-avatar', upload.single('file'), (req, res) => { 
-    uploadAvatar(req.file, req.session.user.email, req.session.user.username, response => {
-        const url = response;
-        res.json(url);
-    })
-});
+app.post('/upload-avatar', upload.single('file'), (req, res) => {
+    console.log('index.js', 1)
+    uploadAvatar(req.file, req.session.user.email, req.session.user.username)
+        .then(url => {
+            console.log('index.js', 2)
+            console.log('index.js response', url)
+            res.json(url);
+        })
+        .catch(error => console.log(error));
+})
+
+// app.post('/upload-avatar', upload.single('file'), (req, res) => { 
+//     uploadAvatar(req.file, req.session.user.email, req.session.user.username, response => {
+//         const url = response;
+//         res.json(url);
+//     })
+// });
 
 app.listen(5000, () => {
     console.log('server started on port 5000');

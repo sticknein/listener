@@ -1,5 +1,5 @@
 const firebase = require('firebase');
-const fs = require('fs');
+const fs = require('fs/promises');
 require('firebase/storage');
 require('dotenv').config({ path: '../.env' });
 
@@ -51,12 +51,13 @@ class Post {
 };
 
 class User {
-    constructor (avatar, bio, date_joined, display_name, email, has_account, last_online, tokens, username) {
+    constructor (avatar, bio, date_joined, display_name, email, password, has_account, last_online, tokens, username) {
         this.avatar = avatar;
         this.bio = bio;
         this.date_joined = date_joined;
         this.display_name = display_name;
         this.email = email;
+        this.password = password;
         this.has_account = has_account;
         this.last_online = last_online;
         this.tokens = tokens;
@@ -123,6 +124,7 @@ const userConverter = {
             date_joined: user.date_joined,
             display_name: user.display_name,
             email: user.email,
+            password: user.password,
             has_account: user.has_account,
             last_online: user.last_online,
             tokens: user.tokens,
@@ -137,6 +139,7 @@ const userConverter = {
             data.date_joined, 
             data.display_name, 
             data.email, 
+            data.password,
             data.has_account,
             data.last_online, 
             data.tokens,
@@ -153,8 +156,13 @@ const createUser = user => {
         .set(user)
 };
 
-const deleteComment = comment_id => {
+const deleteComment = (comment_id, post_id) => {
     db.collection('comments').doc(comment_id).delete()
+        .then(() => {
+            return db.collection('posts').doc(post_id).update({
+                comments: firebase.firestore.FieldValue.increment(-1)
+            })
+        })
         .then(() => {
             return console.log(`Comment ${comment_id} deleted`)
         })
@@ -185,6 +193,25 @@ const editUser = user => {
         .withConverter(userConverter)
         .set(user)
 };
+
+const emailPasswordLogin = (email, password) => {
+    return db.collection('users').doc(email)
+        .get()
+        .then(doc => {
+            if (doc.exists) {
+                const user = doc.data()
+                if (user.password === password) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                return null;
+            }
+        })
+}
 
 const getPostComments = async post_id => {
     return db.collection('comments').where('post_id', '==', post_id)
@@ -247,27 +274,6 @@ const likePost = (post_id, email) => {
     });
 };
 
-// const sendComment = comment => {
-//     return db.collection('comments').doc()
-//         .withConverter(commentConverter)
-//         .set(comment)
-//         .then(() => {
-//             getPostComments(comment.post_id, comments => {
-//                 const comment_id = comments[comments.length - 1].comment_id;
-//                 return db.collection('posts').doc(comment.post_id).update({
-//                     comments: firebase.firestore.FieldValue.arrayUnion(comment_id)
-//                 })
-//                 .then(() => {
-//                     comment = { comment_id, ...comment }; 
-//                     console.log(comment)
-//                     return comment
-//                 })
-//                 .catch(error => console.log(error));
-//             })
-//         })
-//         .catch(error => console.log(error));
-// };
-
 const sendComment = comment => {
     return db.collection('comments').doc()
         .withConverter(commentConverter)
@@ -307,26 +313,23 @@ const unlikePost = (post_id, email) => {
     });
 };
 
-const uploadAvatar = (file, email, username, callback) => {
+const uploadAvatar = async (file, email, username) => {
     let fileType = file.mimetype.replace('image/', '');
-    const avatarImagesRef = storageRef.child(`images/${email}/${username}-avatar.${fileType}`);
+    const avatarImagesRef = storageRef.child(`images/${email}/${username}-avatar/${fileType}`);
 
-    fs.readFile(file.path, (error, data) => {
-        avatarImagesRef.put(data).then(snapshot => {
-            console.log('File uploaded!');
+    return fs.readFile(file.path)
+        .then(data => {
+            return avatarImagesRef.put(data);
         })
-        .then(() => {
+        .then(snapshot => {
+            console.log('Avatar file uploaded.');
             return avatarImagesRef.getDownloadURL()
-            .then(link => {
-                const url = link;
-                callback(url)
-                return url;
-            })
-            .catch(error => console.log(error));
+        })
+        .then(url => {
+            return url;
         })
         .catch(error => console.log(error));
-    });
-};
+}
 
 module.exports = { 
     Comment,
@@ -336,6 +339,7 @@ module.exports = {
     deleteComment,
     deletePost,
     editUser,
+    emailPasswordLogin,
     getPostComments,
     getUser,
     getUserPosts,

@@ -23,16 +23,17 @@ function EditAccount(props) {
     };
 
     const handleClick = e => {
-        let userObject = {};
-        userObject.avatar = props.user.avatar;
-        userObject.bio = bio;
-        userObject.date_joined = props.user.date_joined;
-        userObject.display_name = displayName;
-        userObject.email = props.user.email;
-        userObject.has_account = true;
-        userObject.last_online = props.user.last_online;
-        userObject.tokens = props.user.tokens;
-        userObject.username = username;
+        let userObject = {
+            avatar: props.user.avatar,
+            bio: bio,
+            date_joined: props.user.date_joined,
+            display_name: displayName,
+            email: props.user.email,
+            has_account: true,
+            last_online: props.user.last_online,
+            tokens: props.user.tokens,
+            username: username
+        };
 
         if (avatar) { 
             const formData = new FormData();
