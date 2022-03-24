@@ -12,7 +12,7 @@ const Spotify = new SpotifyWebApi({
     redirectUri: process.env.REACT_APP_REDIRECT_URI
 });
 
-const nowPlaying = tokens => {
+const nowPlaying = async tokens => {
     Spotify.setAccessToken(tokens.access_token);
     Spotify.setRefreshToken(tokens.refresh_token);
     return Spotify.getMyCurrentPlayingTrack()

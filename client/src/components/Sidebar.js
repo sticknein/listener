@@ -9,7 +9,7 @@ import PermIdentityIcon from '@material-ui/icons/PermIdentity';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { Link } from 'react-router-dom';
 
-function Sidebar() {
+function Sidebar(props) {
    return (
                <div className='sidebar'>
                   <HearingIcon className='sidebar-listenerIcon'/> 
@@ -17,13 +17,13 @@ function Sidebar() {
                   <Link to='/' style={{ textDecoration: 'none' }}>
                      <SidebarOption Icon={HomeIcon} text='Home'/> 
                   </Link>
-                  <Link style={{ textDecoration: 'none' }}>
+                  {/* <Link style={{ textDecoration: 'none' }}>
                      <SidebarOption Icon={NotificationsIcon} text='Notifications' /> 
                   </Link>
                   <Link style={{ textDecoration: 'none' }}>
                      <SidebarOption Icon={MailOutlineIcon} text='Messages' /> 
-                  </Link>
-                  <Link to='/profile' style={{ textDecoration: 'none' }}>
+                  </Link> */}
+                  <Link to={`/u/${props.user.username}`} style={{ textDecoration: 'none' }}>
                      <SidebarOption Icon={PermIdentityIcon} text='Profile' /> 
                   </Link>
                   <Link to='/logout' style={{ textDecoration: 'none' }}>

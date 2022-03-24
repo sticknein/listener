@@ -17,7 +17,9 @@ const {
     deletePost,
     editUser,
     emailPasswordLogin,
+    getAllUsers,
     getPostComments,
+    getPosts,
     getUser,
     getUserPosts,
     likeComment,
@@ -240,6 +242,14 @@ app.post('/get-user', (req, res) => {
         .catch(error => console.log(error));
 })
 
+app.get('/get-posts', (req, res) => {
+    getPosts()
+        .then(posts => {
+            res.send(posts);
+        })
+        .catch(error => console.log(error));
+})
+
 app.get('/get-user-posts', (req, res) => {
     getUserPosts(req.session.user)
         .then(posts => {
@@ -263,43 +273,95 @@ app.post('/logout', (req, res) => {
     res.send('Logged out!');
 });
 
-app.get('/now-playing', (req, res) => {
+app.get('/now-playing', (req, ers) => {
     const now = new Date().getTime();
-    console.log('exp', req.session.user.tokens.expires_in);
-    console.log('now', now);
-    console.log('difference', (req.session.user.tokens.expires_in - now))
-    if (req.session.user.tokens.expires_in < now) {
-        console.log('less than!')
-    }
-    else {
-        console.log('more than!')
-    }
-    if (req.session.user.tokens.expires_in < now) {
-        Spotify.setRefreshToken(req.session.user.tokens.refresh_token);
-        Spotify.refreshAccessToken()
-            .then(data => {
-                req.session.user.tokens.access_token = data.body.access_token;
-                req.session.user.tokens.expires_in = (now + ONE_HOUR);
-                console.log('The access token has been refreshed.');
-                return Spotify.setAccessToken(data.body.access_token)
-            })
-            .then(() => {
-                nowPlaying(req.session.user.tokens)
-                    .then(response => {
-                        res.json(response);
+
+    // PROMISE 1 getAllUsers()
+    // PROMISE 2 checkAccessTokens()
+    // PROMISE 3 getSpotifyPlayback()
+
+    // don't forget res.json
+
+    // const checkAccessTokens = async users => {
+    //     const authorized_users = [];
+    //     users.forEach(user => {
+    //         if (Object.keys(user.tokens).length !== 0) {
+    //             if (user.tokens.expires_in < now) {
+    //                 Spotify.setRefreshToken(user.tokens.refresh_token);
+    //                 Spotify.refreshAccessToken()
+    //                     .then(data => {
+    //                         user.tokens.access_token = data.body.access_token;
+    //                         user.tokens.expires_in = (now + ONE_HOUR);
+    //                         console.log(`User ${user.username} has a freshly minted access token.`);
+    //                         Spotify.setAccessToken(data.body.access_token);
+    //                         authorized_users.push(user);
+    //                     })
+    //                     .catch(error => console.log(error));
+    //             }
+    //         }
+    //     })
+    //     .then(() => {
+    //         return authorized_users;
+    //     })
+    // }
+
+    const checkAccessToken = async user => {
+        if (Object.keys(user.tokens).length !== 0) {
+            if (user.tokens.expires_in < now) {
+                Spotify.setRefreshToken(user.tokens.refresh_token);
+                await Spotify.refreshAccessToken()
+                    .then(data => {
+                        user.tokens.access_token = data.body.access_token;
+                        user.tokens.expires_in = (now + ONE_HOUR);
+                        console.log(`User ${user.username} has a freshly minted token.`);
+                        Spotify.setAccessToken(data.body.access_token);
+                        return user;
                     })
                     .catch(error => console.log(error));
-            })
-            .catch(error => console.log(error));
+            }
+        }
     }
-    else {
-        nowPlaying(req.session.user.tokens)
-            .then(response => {
-                res.json(response);
-            })
-            .catch(error => console.log(error));
-    }
-})
+
+    // const getSpotifyPlayback = async users => {
+    //     const playback_feed = [];
+
+    //     users.forEach(user => {
+    //         nowPlaying(user.tokens)
+    //             .then(response => {
+    //                 const playback = {
+    //                     user: user,
+    //                     playback: playback
+    //                 };
+    //                 playback_feed.push(playback);
+    //             })
+    //     })
+    //     .then(() => {
+    //         return playback_feed;
+    //     });
+    // };
+
+    getAllUsers()
+        .then(async users => {
+            const authorized_users = [];
+            for (let user of users) {
+                if (Object.keys(user.tokens).length !== 0) {
+                    const authorized_user = await checkAccessToken(user)
+                    authorized_users.push(user)
+                }
+            }
+            return authorized_users;
+        })
+        .then(async spotify_users => {
+            const playback_feed = [];
+            for (let user of spotify_users) {
+                const playback = await nowPlaying(user.tokens);
+                playback_feed.push(playback)
+            }
+            console.log('playback_feed', playback_feed)
+            return playback_feed;
+        })
+        .catch(error => console.log(error));
+});
 
 app.post('/send-comment', (req, res) => {
     const comment = new Comment(

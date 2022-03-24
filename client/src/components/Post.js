@@ -110,10 +110,10 @@ function Post(props) {
     const sendComment = () => {
         const commentObject = {
             post_id: props.post_id,
-            user: props.user,
+            user: props.active_user,
             text: comment
         }
-        console.log(1)
+        
         fetch('/send-comment', {
             method: 'POST',
             headers: {
@@ -127,11 +127,8 @@ function Post(props) {
             .then(db_comment => {
                 let updated_comments = comments.slice();
                 updated_comments.unshift(db_comment);
-                console.log('commentCount 1', commentCount)
                 const incr_count = commentCount + 1;
                 setCommentCount(incr_count);
-                console.log('commentCount 2', commentCount)
-                console.log('incr_count', incr_count)
                 setComments(updated_comments);
                 setComment('');
             })
@@ -237,7 +234,7 @@ function Post(props) {
                 }
                 {!commentHidden ? 
                     <div className='comment-box'>
-                        <Avatar id='avatar' src={props.user.avatar} />
+                        <Avatar id='avatar' src={props.active_user.avatar} />
                         <textarea 
                             autoFocus
                             className='comment-input' 

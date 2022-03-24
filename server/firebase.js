@@ -231,6 +231,19 @@ const getPostComments = async post_id => {
         .catch(error => console.log(error));
 }
 
+const getAllUsers = async () => {
+    let users = [];
+    return db.collection('users')
+        .get()
+        .then(querySnapshot => {
+            querySnapshot.forEach(doc => {
+                users.push(doc.data());
+            })
+            return users;
+        })
+        .catch(error => console.log(error));
+}
+
 const getUser = email => {
     return db.collection('users').doc(email)
             .get()
@@ -245,8 +258,26 @@ const getUser = email => {
             .catch(error => console.log(error));
 }
 
-const getUserPosts = async user => {
+const getPosts = async () => {
     return db.collection('posts').get()
+        .then(posts => {
+            let db_posts = posts.docs.map(doc => {
+                let post = doc.data();
+                const post_id = doc.id;
+                post = { post_id, ...post };
+                return post
+            });
+            db_posts.sort((x, y) => {
+                return new Date(y.timestamp) - new Date(x.timestamp);
+            })
+            return db_posts;
+        })
+        .catch(error => console.log(error));
+}
+
+const getUserPosts = async user => {
+    return db.collection('posts').where('user.email', '==', user.email)
+        .get()
         .then(posts => {
             let userPosts = posts.docs.map(doc => {
                 let post = doc.data();
@@ -340,7 +371,9 @@ module.exports = {
     deletePost,
     editUser,
     emailPasswordLogin,
+    getAllUsers,
     getPostComments,
+    getPosts,
     getUser,
     getUserPosts,
     likeComment,

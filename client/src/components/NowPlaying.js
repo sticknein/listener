@@ -14,6 +14,7 @@ function NowPlaying(props) {
             })
             .then(playback => {
                 if (playback) {
+                    console.log('NowPlaying.js', playback)
                     setNowPlaying(playback);    
                 }
                 
@@ -32,13 +33,13 @@ function NowPlaying(props) {
                             <Avatar className='now-playing-avatar' src={props.user.avatar}/>
                             <p className='now-playing-username'>@{props.user.username}</p>
                         </div>
-                        <div className='user-track' >
+                        {/* <div className='user-track' >
                             <a className='now-playing-track' href={nowPlaying.external_urls.spotify} target='_blank' >{nowPlaying.name}</a>
                             <p>by</p>
                             <a className='now-playing-artist' href={nowPlaying.artists[0].external_urls.spotify} target='_blank' >{nowPlaying.artists[0].name}</a>
                             <p>from</p>
                             <a className='now-playing-album' href={nowPlaying.album.external_urls.spotify} target='_blank' >{nowPlaying.album.name}</a>
-                        </div>
+                        </div> */}
                         </div>
                     : null}
             <br/>

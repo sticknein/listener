@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Profile.css';
 import FlipMove from 'react-flip-move';
 import Post from './Post';
-
+import { useParams } from 'react-router-dom';
 
 function Profile(props) {
     const [posts, setPosts] = useState(null);
@@ -33,6 +33,8 @@ function Profile(props) {
         }
     })
 
+    // let { username } = useParams();
+
     return (
         <div className='profile'>
             <div className='sub-header'>
@@ -56,7 +58,6 @@ function Profile(props) {
                             <Post 
                                 comments={post.comments}
                                 post_id={post.post_id}
-                                getUserPosts={getUserPosts}
                                 liked_by={post.liked_by}
                                 link={post.link}
                                 text={post.text}

@@ -35,7 +35,7 @@ function Feed(props) {
     };
 
     const getUserPosts = () => {
-        fetch('/get-user-posts')
+        fetch('/get-posts')
             .then(response => {
                 return response.json()
             })
@@ -77,6 +77,7 @@ function Feed(props) {
                     {posts.map(post => (
                         <div className='post' key={post.post_id}>
                             <Post 
+                                active_user={props.user}
                                 comments={post.comments}
                                 post_id={post.post_id}
                                 getUserPosts={getUserPosts}
@@ -86,11 +87,6 @@ function Feed(props) {
                                 timestamp={post.timestamp}
                                 user={post.user}
                             /> 
-                            {!commentsHidden ? 
-                                <div className='comments'>
-                                    
-                                </div>
-                                : null}
                         </div>
                     ))}   
                 </div>

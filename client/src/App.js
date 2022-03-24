@@ -61,9 +61,7 @@ function App(props) {
                         setIsLoading(false);
                     })
                     .catch(error => console.log(error));
-            } else {
-                console.log('There\'s a user up in this piece')
-            }
+            } 
     }, [])
 
     const emailLogin = () => {
@@ -167,8 +165,8 @@ function App(props) {
                     <Route component={() => <Sidebar user={user} />} />
                     <Switch>
                         <Route exact path='/' component={() => <Feed user={user} />} />
-                        <Route path='/profile' component={() => <Profile user={user} />} />
                         <Route path='/logout' component={() => <Logout logout={logout} />} />
+                        <Route exact path='/u/:username' component={() => <Profile user={user} />} />
                     </Switch>
                     <Route component={() => <NowPlaying user={user}/>} />  
                 </div>
