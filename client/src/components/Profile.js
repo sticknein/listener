@@ -56,6 +56,7 @@ function Profile(props) {
                     {posts.map(post => (
                         <div className='post' key={post.post_id}>
                             <Post 
+                                active_user={props.user}
                                 comments={post.comments}
                                 post_id={post.post_id}
                                 liked_by={post.liked_by}

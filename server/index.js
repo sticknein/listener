@@ -273,37 +273,8 @@ app.post('/logout', (req, res) => {
     res.send('Logged out!');
 });
 
-app.get('/now-playing', (req, ers) => {
+app.get('/now-playing', (req, res) => {
     const now = new Date().getTime();
-
-    // PROMISE 1 getAllUsers()
-    // PROMISE 2 checkAccessTokens()
-    // PROMISE 3 getSpotifyPlayback()
-
-    // don't forget res.json
-
-    // const checkAccessTokens = async users => {
-    //     const authorized_users = [];
-    //     users.forEach(user => {
-    //         if (Object.keys(user.tokens).length !== 0) {
-    //             if (user.tokens.expires_in < now) {
-    //                 Spotify.setRefreshToken(user.tokens.refresh_token);
-    //                 Spotify.refreshAccessToken()
-    //                     .then(data => {
-    //                         user.tokens.access_token = data.body.access_token;
-    //                         user.tokens.expires_in = (now + ONE_HOUR);
-    //                         console.log(`User ${user.username} has a freshly minted access token.`);
-    //                         Spotify.setAccessToken(data.body.access_token);
-    //                         authorized_users.push(user);
-    //                     })
-    //                     .catch(error => console.log(error));
-    //             }
-    //         }
-    //     })
-    //     .then(() => {
-    //         return authorized_users;
-    //     })
-    // }
 
     const checkAccessToken = async user => {
         if (Object.keys(user.tokens).length !== 0) {
@@ -319,26 +290,11 @@ app.get('/now-playing', (req, ers) => {
                     })
                     .catch(error => console.log(error));
             }
+            else {  
+                return user;
+            }
         }
     }
-
-    // const getSpotifyPlayback = async users => {
-    //     const playback_feed = [];
-
-    //     users.forEach(user => {
-    //         nowPlaying(user.tokens)
-    //             .then(response => {
-    //                 const playback = {
-    //                     user: user,
-    //                     playback: playback
-    //                 };
-    //                 playback_feed.push(playback);
-    //             })
-    //     })
-    //     .then(() => {
-    //         return playback_feed;
-    //     });
-    // };
 
     getAllUsers()
         .then(async users => {
@@ -355,10 +311,16 @@ app.get('/now-playing', (req, ers) => {
             const playback_feed = [];
             for (let user of spotify_users) {
                 const playback = await nowPlaying(user.tokens);
-                playback_feed.push(playback)
+                if (playback) {
+                    const playback_user = {
+                        user: user,
+                        playback: playback
+                    }
+
+                    playback_feed.push(playback_user)
+                }
             }
-            console.log('playback_feed', playback_feed)
-            return playback_feed;
+            res.json(playback_feed)
         })
         .catch(error => console.log(error));
 });

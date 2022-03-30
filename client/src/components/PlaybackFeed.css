@@ -1,4 +1,4 @@
-.now-playing {
+.playback-feed-container {
     display: flex;
     flex-direction: column;
     flex: 0.3;

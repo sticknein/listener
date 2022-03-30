@@ -11,7 +11,7 @@ import Feed from './components/Feed';
 import Loading from './components/Loading';
 import Login from './components/Login';
 import Logout from './components/Logout';
-import NowPlaying from './components/NowPlaying';
+import PlaybackFeed from './components/PlaybackFeed';
 import Profile from './components/Profile';
 import Sidebar from './components/Sidebar';
 import EmailLoginSetup from './components/EmailLoginSetup';
@@ -168,7 +168,7 @@ function App(props) {
                         <Route path='/logout' component={() => <Logout logout={logout} />} />
                         <Route exact path='/u/:username' component={() => <Profile user={user} />} />
                     </Switch>
-                    <Route component={() => <NowPlaying user={user}/>} />  
+                    <Route component={() => <PlaybackFeed user={user}/>} />  
                 </div>
             </Router>
         );

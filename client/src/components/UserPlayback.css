@@ -1,0 +1,39 @@
+.user-now-playing {
+    flex-direction: row;
+    border: 1px solid rgb(0,0,0,0.5);
+    padding: 5px;
+    border-radius: 30px;
+    min-width: 280px;
+    min-height: 135px;
+}
+
+.user-now-playing-header {
+    display: flex;
+    flex: 0.5;
+    flex-direction: row;
+}
+
+.now-playing-avatar {
+    margin-left: 10px;
+    margin-top: 5px;
+}
+
+.now-playing-username {
+    margin-left: 40%;
+    margin-right: 5px;
+}
+
+.now-playing-track, .now-playing-artist, .now-playing-album {
+    color: black;
+}
+
+.now-playing-album-art {
+    width: 50px;
+    height: 50px;
+}
+
+.user-track {
+    flex: 0.5;
+    text-align: center;
+    min-width: 200px;
+}

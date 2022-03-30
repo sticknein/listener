@@ -16,6 +16,12 @@ function Comment(props) {
     const [likes, setLikes] = useState(props.liked_by.length)
     const [showDelete, setShowDelete] = useState(false);
 
+    useEffect(() => {
+        if (props.liked_by.includes(props.active_user.email)) {
+            setLiked(true)
+        };
+    });
+
     const deleteComment = () => {
         fetch('/delete-comment', {
             method: 'POST',
@@ -51,7 +57,7 @@ function Comment(props) {
                 },
                 body: JSON.stringify({
                     comment_id: props.comment_id,
-                    email: props.user.email
+                    email: props.active_user.email
                 })
             })
             .catch(error => console.log(error));
@@ -67,7 +73,7 @@ function Comment(props) {
                 },
                 body: JSON.stringify({
                     comment_id: props.comment_id,
-                    email: props.user.email
+                    email: props.active_user.email
                 })
             })
         }
@@ -78,6 +84,8 @@ function Comment(props) {
         setShowDelete(!visible);
     }
 
+    console.log('active_user', props)
+
     return (
         <div className='comment'>
             <header className='comment-header'>
@@ -87,17 +95,23 @@ function Comment(props) {
                     <h4 className='comment-username'>@{props.user.username}</h4>
                     <h4> • </h4>
                     <h5 id='comment-timestamp'>{dayjs(props.timestamp).fromNow()}</h5>
-                    <MoreHorizIcon 
-                            id='comment-options'
-                            onClick={toggleDeleteButton}
-                        />
+                    
+                </div>
+                <div className='delete-comment'>
+                    {props.user.username === props.active_user.username &&
+                        <MoreHorizIcon 
+                                id='comment-options'
+                                onClick={toggleDeleteButton}
+                            />
+                    }
+                    
                 </div>
                 {showDelete ? 
                             <Button 
                                 className='delete-comment-button'
                                 onClick={deleteComment}
                             >Delete</Button>
-                        : null}
+                        : null}    
             </header>
             <div className='comment-text'>
                 <p>{props.text}</p>

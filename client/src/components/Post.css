@@ -6,6 +6,10 @@
     min-width: fit-content;
 }
 
+.post-avatar {
+    cursor: pointer;
+}
+
 .post-header {
     display: flex;
     margin-left: 10px;
@@ -34,6 +38,7 @@
     color: rgb(48, 48, 48);
     margin-left: 2px;
     padding-left: 5px;
+    cursor: pointer;
 }
 
 .post-username {
@@ -41,6 +46,7 @@
     color: rgb(48, 48, 48);
     margin-left: 2px;
     padding-left: 5px;
+    cursor: pointer;
 }
 
 .post-text {
@@ -143,7 +149,7 @@ textarea {
     border-radius: 30px !important;
     position:relative;
     top: 10px;
-    left: 100px;
+    left: 180px;
     min-width: 80px !important;
     cursor: pointer;
     font-size: 0.7rem !important;
@@ -159,7 +165,7 @@ textarea {
 .delete {
     position: relative;
     top: 10px;
-    left: 120px;
+    left: 328px;
 }
 
 .comments {

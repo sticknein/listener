@@ -11,6 +11,7 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 
 import FlipMove from 'react-flip-move';
+import { post } from 'spotify-web-api-node/src/http-manager';
 
 var relativeTime = require('dayjs/plugin/relativeTime')
 dayjs.extend(relativeTime)
@@ -26,7 +27,7 @@ function Post(props) {
     const [showDelete, setShowDelete] = useState(false);
 
     useEffect(() => {
-        if (props.liked_by.includes(props.user.email)) {
+        if (props.liked_by.includes(props.active_user.email)) {
             setLiked(true)
         };
         if (commentCount === 0) {
@@ -38,7 +39,7 @@ function Post(props) {
                 setComments([]);
             }
         })
-    })
+    });
 
     const likePost = () => {
         if (!liked) {
@@ -52,7 +53,7 @@ function Post(props) {
                 },
                 body: JSON.stringify({
                     post_id: props.post_id,
-                    email: props.user.email
+                    email: props.active_user.email
                 })
             })
             .catch(error => console.log(error));
@@ -68,7 +69,7 @@ function Post(props) {
                 },
                 body: JSON.stringify({
                     post_id: props.post_id,
-                    email: props.user.email
+                    email: props.active_user.email
                 })
             })
         }
@@ -161,35 +162,45 @@ function Post(props) {
             console.log(error);
         })
     }
+
+    const showProfile = () => {
+        window.location.assign(`/u/${props.user.username}`)
+    };
   
     return (
         <div className='post'>
             <header className='post-header'>
-                <Avatar className='post-avatar' src={props.user.avatar} />
+                <Avatar 
+                    className='post-avatar' 
+                    src={props.user.avatar} 
+                    onClick={showProfile}
+                />
                 <div className='post-header-text'>
-                    <h3 className='post-display-name'>
+                    <h3 className='post-display-name' onClick={showProfile}>
                         {props.user.display_name}
                     </h3>
-                    <h4 className='post-username'>
+                    <h4 className='post-username' onClick={showProfile}>
                         @{props.user.username}
                     </h4>
                     <h4> • </h4>
                     <h5 id='timestamp'>{dayjs(props.timestamp).fromNow()}</h5>
-                    <div className='delete'>
+                </div>
+                <div className='delete'>
+                    {props.user.username === props.active_user.username && 
                         <MoreHorizIcon 
                             id='post-options'
                             onClick={toggleDeleteButton}
                         />
-                    </div>
+                    }
                 </div>
                 {showDelete ? 
-                        <div id='delete-post'>
-                            <Button 
-                                className='delete-post-button'
-                                onClick={deletePost}
-                            >Delete Post</Button>
-                        </div> 
-                        : null}
+                    <div id='delete-post'>
+                        <Button 
+                            className='delete-post-button'
+                            onClick={deletePost}
+                        >Delete Post</Button>
+                    </div> 
+                    : null}
             </header>
             <div className='post-text'>
                 <p>{props.text}</p>
@@ -258,6 +269,7 @@ function Post(props) {
                         {comments.map(post_comment => (
                             <div className='comment' key={post_comment.comment_id}>
                                 <Comment 
+                                    active_user={props.active_user}
                                     comment_id={post_comment.comment_id}
                                     comments={post_comment.comments}
                                     getPostComments={getPostComments}
