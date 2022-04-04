@@ -54,7 +54,7 @@ const ref = admin.initializeApp({
 const SIX_MONTHS = 15778800000;
 const ONE_HOUR = 60 * 60 * 1000;
 
-const port = process.env.PORT || 8080
+const port = process.env.PORT || 5000
 
 app.use(
     session({
