@@ -54,6 +54,8 @@ const ref = admin.initializeApp({
 const SIX_MONTHS = 15778800000;
 const ONE_HOUR = 60 * 60 * 1000;
 
+const port = process.env.PORT || 8080
+
 app.use(
     session({
         store: new FirebaseStore({
@@ -382,6 +384,6 @@ app.post('/upload-avatar', upload.single('file'), (req, res) => {
 //     })
 // });
 
-app.listen(5000, () => {
+app.listen(port, () => {
     console.log('server started on port 5000');
 });
