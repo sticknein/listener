@@ -150,12 +150,6 @@ app.get('/spotify-callback', (req, res) => {
 
 // ENDPOINTS
 
-// app.get('/check-user', (req, res) => {
-//     userExists(req.session.user, response => {
-//         res.send(response);
-//     });
-// });
-
 app.get('/check-user', (req, res) => {
     if (!req.session.user) {
         res.json(null);
@@ -214,24 +208,6 @@ app.post('/get-post-comments', (req, res) => {
         })
         .catch(error => console.log(error));
 });
-
-// app.get('/get-user', (req, res) => {
-//     if (!req.session.user) {
-//         res.json(null);
-//     }
-//     else {
-//         getUser(req.session.user.email)
-//             .then(response => {
-//                 if (response !== null) {
-//                     response.exists = true;
-//                 }
-//                 response.tokens = req.session.user.tokens;
-//                 req.session.user = response;
-//                 res.json(req.session.user);
-//             })
-//             .catch(error => console.log(error));
-//     }
-// });
 
 app.post('/get-user', (req, res) => {
     return getUser(req.body.email)
@@ -374,13 +350,6 @@ app.post('/upload-avatar', upload.single('file'), (req, res) => {
         })
         .catch(error => console.log(error));
 })
-
-// app.post('/upload-avatar', upload.single('file'), (req, res) => { 
-//     uploadAvatar(req.file, req.session.user.email, req.session.user.username, response => {
-//         const url = response;
-//         res.json(url);
-//     })
-// });
 
 app.listen(process.env.PORT || 5000, () => {
     console.log('server started on port 5000');
