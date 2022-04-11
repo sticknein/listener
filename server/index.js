@@ -39,9 +39,18 @@ const {
 const {
     nowPlaying,
     Spotify
-} = require('./spotify')
+} = require('./spotify');
+const { dirname } = require('path');
 
 const serviceAccount = require(process.env.FIRESTORE_SERVICE_ACCOUNT)
+
+// Production mode
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, 'client/build')));
+    app.get('*', (req, res) => {
+        res.sendFile(__dirname, 'client/build');
+    });
+};
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
