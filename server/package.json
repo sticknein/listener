@@ -10,8 +10,6 @@
   "scripts": {
     "client-install": "npm install --prefix client",
     "start": "node index.js",
-    "server": "nodemon index.js",
-    "client": "npm start --prefix client",
     "dev": "nodemon ./index.js localhost 5000",
     "build": "webpack"
   },
