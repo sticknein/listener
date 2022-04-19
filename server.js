@@ -7,26 +7,43 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // const express = require('express');
+
 import express from 'express';
+
 // require('dotenv').config({ path: './.env' });
+
 import dotenv from 'dotenv';
 dotenv.config();
+
 // const path = require('path');
+
 import path from 'path';
+
 // const session = require('express-session');
+
 import session from 'express-session';
+
 // const bodyParser = require('body-parser');
+
 import bodyParser from 'body-parser';
+
 // const multer = require('multer');
+
 import multer from 'multer';
+
 // const cryptoRandomString = require('crypto-random-string');
+
 import cryptoRandomString from 'crypto-random-string';
 const FirebaseStore = require('connect-session-firebase')(session);
+
 // import FirebaseFirestore from 'connect-session-firebase';
 // FirebaseFirestore(session);
 // const admin = require('firebase-admin');
+
 import admin from 'firebase-admin';
+
 // const cookieParser = require('cookie-parser');
+
 import cookieParser from 'cookie-parser';
 
 import { 
@@ -57,7 +74,9 @@ import {
     nowPlaying,
     Spotify
 } from './util/spotify.js';
+
 // const { dirname } = require('path');
+
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -94,8 +113,9 @@ app.use(
     })
 );
 
-app.use(express.static(path.join(__dirname, '..', 'build')));
-app.use(express.static(path.join(__dirname, '..', 'client')));
+// app.use(express.static(path.join(__dirname, '..', 'build')));
+// app.use(express.static(path.join(__dirname, '..', 'client')));
+app.use(express.static(path.join(__dirname, 'client/build')));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());

@@ -41,9 +41,6 @@
   "scripts": {
     "start": "node server.js",
     "heroku-postbuild": "cd client && npm install && npm run build",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
     "dev": "nodemon ./server.js localhost 5000"
   },
   "eslintConfig": {
