@@ -82,17 +82,16 @@ import { fileURLToPath } from 'url';
 
 const serviceAccount = process.env.FIRESTORE_SERVICE_ACCOUNT;
 
+const app = express();
+const upload = multer({ dest: 'uploads/' });
+
 // Production mode
 if (process.env.NODE_ENV === 'production') {
-    // app.use(express.static(path.join(__dirname, 'build')));
-    app.use(express.static(path.join(__dirname, 'client/build')));
+    app.use(express.static(path.join(__dirname, 'build')));
     app.get('*', (req, res) => {
         res.sendFile(__dirname, 'build');
     });
 };
-
-const app = express();
-const upload = multer({ dest: 'uploads/' });
 
 const ref = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
