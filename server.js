@@ -133,7 +133,7 @@ app.get('/authorize', (req, res) => {
         'user-read-email'
     ]
 
-    const state = req.session.state || cryptoRandomString(20);
+    const state = req.session.state || cryptoRandomString({length: 20});
     req.session.state = state;
     const authorizeURL = Spotify.createAuthorizeURL(scopes, state) + '&show_dialog=true';
     res.json(authorizeURL)
