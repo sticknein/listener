@@ -123,7 +123,7 @@ app.use(cookieParser());
 // SPOTIFY AUTH
 
 app.get('/authorize', (req, res) => {
-    scopes = [
+    const scopes = [
         'user-read-recently-played', 
         'user-top-read', 
         'playlist-modify-public', 
