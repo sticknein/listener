@@ -1,13 +1,13 @@
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
-// const firebase = require('firebase');
-import firebase from '@firebase/app';
-// const fs = require('fs/promises');
-import fs from 'fs/promises';
-// require('firebase/storage');
-import '@firebase/storage';
-import '@firebase/firestore'
+const firebase = require('firebase');
+// import firebase from '@firebase/app';
+const fs = require('fs/promises');
+// import fs from 'fs/promises';
+require('firebase/storage');
+// import '@firebase/storage';
+// import '@firebase/firestore'
 // require('dotenv').config({ path: '../.env' });
 import dotenv from 'dotenv';
 dotenv.config()

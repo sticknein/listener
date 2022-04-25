@@ -162,14 +162,14 @@ app.get('/spotify-callback', (req, res) => {
                     const today = new Date();
                     
                     const user = new User(
-                        avatar = '',
-                        bio = '',
-                        date_joined = today,
-                        display_name = username, 
+                        '',
+                        '',
+                        today,
+                        username, 
                         email,
-                        password = '',
-                        has_account = false,
-                        last_online = today,
+                        '',
+                        false,
+                        today,
                         tokens,
                         username
                     );
