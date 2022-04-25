@@ -184,10 +184,10 @@ app.get('/spotify-callback', (req, res) => {
                             user.has_account = true;
                             user.username = response.username;
 
-                            res.redirect('http://localhost:3000/')
+                            res.redirect('https://sticknein-listener.herokuapp.com/')
                         } else {
                             createUser(req.session.user)
-                            res.redirect('http://localhost:3000/edit-account');
+                            res.redirect('https://sticknein-listener.herokuapp.com/edit-account');
                         }
                     })
                 })
