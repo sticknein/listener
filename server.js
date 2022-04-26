@@ -133,9 +133,11 @@ app.get('/authorize', (req, res) => {
         'user-read-email'
     ]
 
-    const state = req.session.state || cryptoRandomString({length: 20});
-    req.session.state = state;
-    const authorizeURL = Spotify.createAuthorizeURL(scopes, state) + '&show_dialog=true';
+    // const state = req.session.state || cryptoRandomString({length: 20});
+    // req.session.state = state;
+    const random_string = cryptoRandomString({ length: 20 });
+
+    const authorizeURL = Spotify.createAuthorizeURL(scopes, random_string) + '&show_dialog=true';
     res.json(authorizeURL)
 });
 
@@ -174,6 +176,7 @@ app.get('/spotify-callback', (req, res) => {
                         username
                     );
                     
+                    // active users?
                     req.session.user = user;
 
                     getUser(user.email).then(response => {
