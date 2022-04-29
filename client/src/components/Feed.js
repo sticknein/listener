@@ -12,7 +12,7 @@ function Feed(props) {
     const [comments, setComments] = useState(null);
 
     const getPostComments = post_id => {
-        fetch('/get-post-comments', {
+        fetch('http://localhost:5000/get-post-comments', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -35,7 +35,7 @@ function Feed(props) {
     };
 
     const getUserPosts = () => {
-        fetch('/get-posts')
+        fetch('http://localhost:5000/get-posts')
             .then(response => {
                 return response.json()
             })

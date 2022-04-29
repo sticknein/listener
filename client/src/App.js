@@ -4,6 +4,7 @@ import {
     Switch, 
     Route
 } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 import './App.css';
 import EditAccount from './components/EditAccount';
@@ -17,6 +18,7 @@ import Sidebar from './components/Sidebar';
 import EmailLoginSetup from './components/EmailLoginSetup';
 import EmailLogin from './components/EmailLogin';
 
+
 function App(props) {
     const [createAccount, setCreateAccount] = useState(false);
     const [hasSpotify, setHasSpotify] = useState(true);
@@ -25,44 +27,83 @@ function App(props) {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const localStorageUser = localStorage.getItem('user');
-        const localStorageObject = JSON.parse(localStorageUser);
-        if (!user && !localStorageUser) {
-            fetch('/check-user')
-                .then(response => { 
-                    const data = response.json();
-                    return data;
-                })
-                .then(userObject => {
-                    if (userObject !== null) {
-                        localStorage.setItem('user', JSON.stringify(userObject));
-                        setUser(userObject);
-                        setIsLoggedIn(true);
-                        setIsLoading(false);
-                    }
-                    else {
-                        setIsLoggedIn(false);
-                        setIsLoading(false);
-                    }
-                })
-                .catch(error => console.log(error));
-            }
-            else if (!user && localStorageUser) {
-                fetch('/set-user', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: localStorageUser
-                })
-                    .then(() => {
-                        setUser(localStorageObject);
-                        setIsLoggedIn(true);
-                        setIsLoading(false);
-                    })
-                    .catch(error => console.log(error));
-            } 
+        if (!user && !Cookies.get('user')) {
+            setIsLoading(false);
+        }
+        else if (Cookies.get('user')) {
+            const cookie = Cookies.get('user');
+            const backend_user = JSON.parse(cookie);
+            setUser(backend_user);
+            setIsLoggedIn(true);
+            setIsLoading(false);
+        }
+        else if (Cookies.get('user').has_account === false) {
+            const cookie = Cookies.get('user');
+            const backend_user = JSON.parse(cookie);
+            setUser(backend_user);
+            setCreateAccount(true);
+            setIsLoggedIn(true);
+            setIsLoading(true);
+        }
+        else if (user) {
+            setIsLoggedIn(true);
+            setIsLoading(false);
+        }
     }, [])
+
+    // useEffect(() => {
+    //     if (!Cookies.get('user')) {
+    //         console.log('no user!');
+    //         setIsLoading(false);
+    //     }
+    //     else {
+    //         const cookie = Cookies.get('user');
+    //         const backend_user = JSON.parse(cookie);
+    //         setUser(backend_user);
+    //         setIsLoggedIn(true);
+    //         setIsLoading(false);
+    //     }
+    // })
+
+    // useEffect(() => {
+    //     const localStorageUser = localStorage.getItem('user');
+    //     const localStorageObject = JSON.parse(localStorageUser);
+    //     if (!user && !localStorageUser) {
+    //         fetch('/check-user')
+    //             .then(response => { 
+    //                 const data = response.json();
+    //                 return data;
+    //             })
+    //             .then(userObject => {
+    //                 if (userObject !== null) {
+    //                     localStorage.setItem('user', JSON.stringify(userObject));
+    //                     setUser(userObject);
+    //                     setIsLoggedIn(true);
+    //                     setIsLoading(false);
+    //                 }
+    //                 else {
+    //                     setIsLoggedIn(false);
+    //                     setIsLoading(false);
+    //                 }
+    //             })
+    //             .catch(error => console.log(error));
+    //         }
+    //         else if (!user && localStorageUser) {
+    //             fetch('/set-user', {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json'
+    //                 },
+    //                 body: localStorageUser
+    //             })
+    //                 .then(() => {
+    //                     setUser(localStorageObject);
+    //                     setIsLoggedIn(true);
+    //                     setIsLoading(false);
+    //                 })
+    //                 .catch(error => console.log(error));
+    //         } 
+    // }, [])
 
     const emailLogin = () => {
         setHasSpotify(false);
@@ -93,7 +134,7 @@ function App(props) {
             return response.json();
         })
         .then(db_user => {
-            localStorage.setItem('user', JSON.stringify(db_user));
+            Cookies.set('user', JSON.stringify(db_user))
             setUser(db_user);
             setIsLoggedIn(true);
         })
@@ -109,6 +150,7 @@ function App(props) {
         })
             .then(() => {
                 localStorage.clear();
+                Cookies.remove('user')
                 setUser({})
                 setIsLoggedIn(false);
                 setIsLoading(false); 

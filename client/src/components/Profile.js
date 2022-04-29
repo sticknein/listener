@@ -7,44 +7,71 @@ import { useParams } from 'react-router-dom';
 function Profile(props) {
     const [posts, setPosts] = useState(null);
     const [commentHidden, setCommentHidden] = useState(true);
+    const [profileUser, setProfileUser] = useState(props.user);
+    const { username } = useParams();
 
     const getUserPosts = () => {
-        fetch('/get-user-posts')
-            .then(response => {
-                return response.json()
+        fetch('/get-user-posts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username
             })
-            .then(posts => {
-                let all_comments = [];
-                posts.forEach(post => {
-                    if (post.comments > 0) {
-                        for (let i = 0; i < post.comments; i++) {
-                            all_comments.push(post.comments[i])
-                        }
+        })
+        .then(response => {
+            return response.json()
+        })
+        .then(posts => {
+            let all_comments = [];
+            posts.forEach(post => {
+                if (post.comments > 0) {
+                    for (let i = 0; i < post.comments; i++) {
+                        all_comments.push(post.comments[i])
                     }
-                })
-                return setPosts(posts)
+                }
             })
-            .catch(error => console.log(error));
+            return setPosts(posts)
+        })
+        .catch(error => console.log(error));
     };
 
+    const getUserByUsername = input => {
+        fetch('/get-user-by-username', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: input
+            })
+        })
+        .then(response => {
+            return response.json();
+        })
+        .then(db_user => {
+            setProfileUser(db_user);
+        })
+    }
+
     useEffect(() => {
+        getUserByUsername(username)
         if (!posts) {
             getUserPosts();
         }
-    })
-
-    // let { username } = useParams();
+    }, [])
 
     return (
         <div className='profile'>
             <div className='sub-header'>
                 <div id='prof-pic-row'>
-                    <img src={props.user.avatar} id='prof-pic' alt='Profile picture' />
+                    <img src={profileUser.avatar} id='prof-pic' alt='Profile picture' />
                 </div>
                 <div id='name-row'>
-                    <h1>{props.user.display_name}</h1>
-                    <h2>@{props.user.username}</h2>
-                    <p className='bio'>{props.user.bio}</p>
+                    <h1>{profileUser.display_name}</h1>
+                    <h2>@{profileUser.username}</h2>
+                    <p className='bio'>{profileUser.bio}</p>
                 </div>
             </div>
 

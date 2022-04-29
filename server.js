@@ -1,50 +1,23 @@
 // ES6 module require() setup
 import { createRequire } from 'module';
-// import { fileURLToPath } from 'url';
-// import { dirname } from 'path';
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// const express = require('express');
-
 import express from 'express';
-
-// require('dotenv').config({ path: './.env' });
-
 import dotenv from 'dotenv';
 dotenv.config();
-
-// const path = require('path');
-
 import path from 'path';
-
-// const session = require('express-session');
-
 import session from 'express-session';
-
-// const bodyParser = require('body-parser');
-
 import bodyParser from 'body-parser';
-
-// const multer = require('multer');
-
 import multer from 'multer';
-
-// const cryptoRandomString = require('crypto-random-string');
-
 import cryptoRandomString from 'crypto-random-string';
 const FirebaseStore = require('connect-session-firebase')(session);
-
-// import FirebaseFirestore from 'connect-session-firebase';
-// FirebaseFirestore(session);
-// const admin = require('firebase-admin');
-
+const cors = require('cors');
 import admin from 'firebase-admin';
-
-// const cookieParser = require('cookie-parser');
-
 import cookieParser from 'cookie-parser';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 import { 
     Comment,
@@ -58,6 +31,7 @@ import {
     getPostComments,
     getPosts,
     getUser,
+    getUserByUsername,
     getUserPosts,
     likeComment,
     likePost,
@@ -75,14 +49,10 @@ import {
     Spotify
 } from './util/spotify.js';
 
-// const { dirname } = require('path');
-
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-
 const serviceAccount = process.env.FIRESTORE_SERVICE_ACCOUNT;
 
 const app = express();
+app.use(cors());
 const upload = multer({ dest: 'uploads/' });
 
 // Production mode
@@ -113,15 +83,26 @@ app.use(
     })
 );
 
-// app.use(express.static(path.join(__dirname, '..', 'build')));
-// app.use(express.static(path.join(__dirname, '..', 'client')));
 app.use(express.static(path.join(__dirname, 'client/build')));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// SPOTIFY AUTH
+// HELPER FUNCTIONS
+const checkForUser = email => {
+    const active_user = req.session.users.find(user => user.email === email);
+    if (active_user) {
+        req.session.users.indexOf(active_user)
+            .then(index => {
+                return index;
+            })
+    }
+    else {
+        return null;
+    }
+}
 
+// SPOTIFY AUTH
 app.get('/authorize', (req, res) => {
     const scopes = [
         'user-read-recently-played', 
@@ -158,9 +139,9 @@ app.get('/spotify-callback', (req, res) => {
             }
 
             Spotify.getMe()
-                .then(userResults => {
-                    const username = userResults.body.display_name;
-                    const email = userResults.body.email;
+                .then(spotify_response => {
+                    const username = spotify_response.body.display_name;
+                    const email = spotify_response.body.email;
                     const today = new Date();
                     
                     const user = new User(
@@ -175,9 +156,6 @@ app.get('/spotify-callback', (req, res) => {
                         tokens,
                         username
                     );
-                    
-                    // active users?
-                    req.session.user = user;
 
                     getUser(user.email).then(response => {
                         if (response !== null) {
@@ -186,11 +164,14 @@ app.get('/spotify-callback', (req, res) => {
                             user.date_joined = response.date_joined;
                             user.has_account = true;
                             user.username = response.username;
-
-                            res.redirect('https://sticknein-listener.herokuapp.com/')
+                            const user_payload = JSON.stringify(user);
+                            res.cookie('user', user_payload);
+                            res.redirect(process.env.FRONTEND_URL);
                         } else {
-                            createUser(req.session.user)
-                            res.redirect('https://sticknein-listener.herokuapp.com/edit-account');
+                            createUser(user);
+                            const user_payload = JSON.stringify(user);
+                            res.cookie('user', user_payload);
+                            res.redirect(`${process.env.FRONTEND_URL}/edit-account`);
                         }
                     })
                 })
@@ -240,9 +221,15 @@ app.post('/delete-post', (req, res) => {
 })
 
 app.post('/edit-user', (req, res) => {
-    editUser(req.body)
-    req.session.user = req.body;
-    res.send(req.session.user)
+    const user = req.body;
+    if (!user.password) {
+        user.password = '';
+    }
+    console.log('server.js /edit user', user)
+    editUser(user)
+    const user_cookie = JSON.stringify(user);
+    res.cookie('user', user_cookie);
+    res.send(user)
 });
 
 app.post('/email-password-login', (req, res) => {
@@ -263,8 +250,17 @@ app.post('/get-post-comments', (req, res) => {
 app.post('/get-user', (req, res) => {
     return getUser(req.body.email)
         .then(response => {
-            req.session.user = response;
-            res.json(req.session.user);
+            // req.session.user = response;
+            res.json(response);
+        })
+        .catch(error => console.log(error));
+})
+
+app.post('/get-user-by-username', (req, res) => {
+    console.log('req.body.username', req.body.username)
+    return getUserByUsername(req.body.username)
+        .then(response => {
+            res.json(response);
         })
         .catch(error => console.log(error));
 })
@@ -277,8 +273,8 @@ app.get('/get-posts', (req, res) => {
         .catch(error => console.log(error));
 })
 
-app.get('/get-user-posts', (req, res) => {
-    getUserPosts(req.session.user)
+app.post('/get-user-posts', (req, res) => {
+    return getUserPosts(req.body.username)
         .then(posts => {
             res.send(posts)
         })
@@ -377,9 +373,23 @@ app.post('/send-post', (req, res) => {
 });
 
 app.post('/set-user', (req, res) => {
-    req.session.user = req.body;
-    res.send('Set user')
+    checkForUser(req.body.email)
+        .then(response => {
+            if (response) {
+                req.session.users[response] = req.body;
+                res.send(`Updated user ${req.body.username}`);
+            }
+            else {
+                req.session.users.push(req.body);
+            }
+        })
+        .catch(error => console.log(error));
 })
+
+// app.post('/set-user', (req, res) => {
+//     req.session.user = req.body;
+//     res.send('Set user')
+// })
 
 app.post('/unlike-comment', (req, res) => {
     unlikeComment(req.body.comment_id, req.body.email);
@@ -392,11 +402,9 @@ app.post('/unlike-post', (req, res) => {
 })
 
 app.post('/upload-avatar', upload.single('file'), (req, res) => {
-    console.log('index.js', 1)
-    uploadAvatar(req.file, req.session.user.email, req.session.user.username)
+    console.log('server.js /upload-avatar', req.body)
+    uploadAvatar(req.file, req.body.email, req.body.username)
         .then(url => {
-            console.log('index.js', 2)
-            console.log('index.js response', url)
             res.json(url);
         })
         .catch(error => console.log(error));

@@ -1,10 +1,11 @@
 .user-now-playing {
     flex-direction: row;
     border: 1px solid rgb(0,0,0,0.5);
-    padding: 5px;
+    padding: 5px 5px 20px 5px;
     border-radius: 30px;
     min-width: 280px;
     min-height: 135px;
+    margin-bottom: 20px;
 }
 
 .user-now-playing-header {

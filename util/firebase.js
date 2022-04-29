@@ -223,7 +223,7 @@ const emailPasswordLogin = (email, password) => {
         })
 }
 
-const getPostComments = async post_id => {
+const getPostComments = post_id => {
     return db.collection('comments').where('post_id', '==', post_id)
         .get()
         .then(comments => {
@@ -285,20 +285,53 @@ const getPosts = async () => {
         .catch(error => console.log(error));
 }
 
-const getUserPosts = async user => {
-    return db.collection('posts').where('user.email', '==', user.email)
+// const getUserByUsername = username => {
+//     console.log('username', username)
+//     return db.collection('users').where('username', '==', username)
+//         .get()
+//         .then(doc => {
+//             if (doc.exists) {
+//                 console.log('if')
+//                 return doc.data();
+//             }
+//             else {
+//                 console.log('else')
+//                 return null;
+//             }
+//         })
+//         .catch(error => console.log(error));
+// }
+
+const getUserByUsername = username => {
+    return db.collection('users').where('username', '==', username)
         .get()
-        .then(posts => {
-            let userPosts = posts.docs.map(doc => {
-                let post = doc.data();
-                const post_id = doc.id;
-                post = { post_id, ...post };
-                return post
-            });
-            userPosts.sort((x, y) => {
-                return new Date(y.timestamp) - new Date(x.timestamp);
+        .then(querySnapshot => {
+            let backend_user
+            querySnapshot.forEach(doc => {
+                backend_user = doc.data()
             })
-            return userPosts;
+            return backend_user;
+        })
+        .catch(error => console.log(error));
+}
+
+const getUserPosts = async username => {
+    return getUserByUsername(username)
+        .then(user => {
+            return db.collection('posts').where('user.email', '==', user.email)
+                    .get()
+                    .then(posts => {
+                        let userPosts = posts.docs.map(doc => {
+                            let post = doc.data();
+                            const post_id = doc.id;
+                            post = { post_id, ...post };
+                            return post
+                        });
+                        userPosts.sort((x, y) => {
+                            return new Date(y.timestamp) - new Date(x.timestamp);
+                        })
+                        return userPosts;
+            })
         })
         .catch(error => console.log(error));
 }
@@ -385,6 +418,7 @@ export {
     getPostComments,
     getPosts,
     getUser,
+    getUserByUsername,
     getUserPosts,
     likeComment,
     likePost,

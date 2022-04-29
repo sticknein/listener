@@ -84,8 +84,6 @@ function Comment(props) {
         setShowDelete(!visible);
     }
 
-    console.log('active_user', props)
-
     return (
         <div className='comment'>
             <header className='comment-header'>

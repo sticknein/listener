@@ -238,7 +238,7 @@ function Post(props) {
                 />
 
                 {commentCount > 0 ? 
-                    <div classname='comments-count'>
+                    <div className='comments-count'>
                         {commentCount}
                     </div>
                     : null
