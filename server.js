@@ -59,7 +59,7 @@ const upload = multer({ dest: 'uploads/' });
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, 'client/build'))); // CHANGED
     app.get('*', (req, res) => {
-        res.sendFile(__dirname, 'build');
+        res.sendFile(__dirname, 'client/build'); // CHANGED
     });
 };
 

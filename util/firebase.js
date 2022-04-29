@@ -16,7 +16,7 @@ const serviceAccount = require('./service-account.json')
 // import { create } from 'domain';
 
 // Firebase db setup
-const firebaseApp = firebase.initializeApp({
+const firebaseApp = firebase.initializeApp({ // removed .default
         apiKey: process.env.FIREBASE_API_KEY,
         authDomain: process.env.FIREBASE_AUTH_DOMAIN,
         databaseURL: process.env.FIREBASE_DATABASE_URL,
@@ -27,8 +27,8 @@ const firebaseApp = firebase.initializeApp({
         measurementId: process.env.FIREBASE_MEASUREMENT_ID
 });
 
-const db = firebase.firestore();
-const storage = firebase.storage();
+const db = firebase.firestore(); // removed .default  
+const storage = firebase.storage(); // removed .default 
 const storageRef = storage.ref();
 
 // Class constructors
