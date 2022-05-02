@@ -11,7 +11,6 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 
 import FlipMove from 'react-flip-move';
-import { post } from 'spotify-web-api-node/src/http-manager';
 
 var relativeTime = require('dayjs/plugin/relativeTime')
 dayjs.extend(relativeTime)

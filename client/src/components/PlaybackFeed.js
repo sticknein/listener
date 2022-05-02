@@ -10,7 +10,7 @@ function PlaybackFeed(props) {
     const [playbackFeed, setPlaybackFeed] = useState(null);
 
     useEffect(() => {
-        fetch('http://localhost:5000/now-playing')
+        fetch('/now-playing')
             .then(response => {
                 return response.json()
             })

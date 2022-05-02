@@ -106,8 +106,6 @@ app.get('/authorize', (req, res) => {
         'user-read-email'
     ]
 
-    // const state = req.session.state || cryptoRandomString({length: 20});
-    // req.session.state = state;
     const random_string = cryptoRandomString({ length: 20 });
 
     const authorizeURL = Spotify.createAuthorizeURL(scopes, random_string) + '&show_dialog=true';
@@ -250,7 +248,6 @@ app.post('/get-post-comments', (req, res) => {
 app.post('/get-user', (req, res) => {
     return getUser(req.body.email)
         .then(response => {
-            // req.session.user = response;
             res.json(response);
         })
         .catch(error => console.log(error));
@@ -377,11 +374,6 @@ app.post('/set-user', (req, res) => {
         })
         .catch(error => console.log(error));
 })
-
-// app.post('/set-user', (req, res) => {
-//     req.session.user = req.body;
-//     res.send('Set user')
-// })
 
 app.post('/unlike-comment', (req, res) => {
     unlikeComment(req.body.comment_id, req.body.email);

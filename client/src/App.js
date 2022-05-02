@@ -51,60 +51,6 @@ function App(props) {
         }
     }, [])
 
-    // useEffect(() => {
-    //     if (!Cookies.get('user')) {
-    //         console.log('no user!');
-    //         setIsLoading(false);
-    //     }
-    //     else {
-    //         const cookie = Cookies.get('user');
-    //         const backend_user = JSON.parse(cookie);
-    //         setUser(backend_user);
-    //         setIsLoggedIn(true);
-    //         setIsLoading(false);
-    //     }
-    // })
-
-    // useEffect(() => {
-    //     const localStorageUser = localStorage.getItem('user');
-    //     const localStorageObject = JSON.parse(localStorageUser);
-    //     if (!user && !localStorageUser) {
-    //         fetch('/check-user')
-    //             .then(response => { 
-    //                 const data = response.json();
-    //                 return data;
-    //             })
-    //             .then(userObject => {
-    //                 if (userObject !== null) {
-    //                     localStorage.setItem('user', JSON.stringify(userObject));
-    //                     setUser(userObject);
-    //                     setIsLoggedIn(true);
-    //                     setIsLoading(false);
-    //                 }
-    //                 else {
-    //                     setIsLoggedIn(false);
-    //                     setIsLoading(false);
-    //                 }
-    //             })
-    //             .catch(error => console.log(error));
-    //         }
-    //         else if (!user && localStorageUser) {
-    //             fetch('/set-user', {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'Content-Type': 'application/json'
-    //                 },
-    //                 body: localStorageUser
-    //             })
-    //                 .then(() => {
-    //                     setUser(localStorageObject);
-    //                     setIsLoggedIn(true);
-    //                     setIsLoading(false);
-    //                 })
-    //                 .catch(error => console.log(error));
-    //         } 
-    // }, [])
-
     const emailLogin = () => {
         setHasSpotify(false);
     }

@@ -2,21 +2,15 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 const firebase = require('firebase');
-// import firebase from '@firebase/app';
 const fs = require('fs/promises');
-// import fs from 'fs/promises';
 require('firebase/storage');
-// import '@firebase/storage';
-// import '@firebase/firestore'
-// require('dotenv').config({ path: '../.env' });
 import dotenv from 'dotenv';
 dotenv.config()
 
 const serviceAccount = require('./service-account.json')
-// import { create } from 'domain';
 
 // Firebase db setup
-const firebaseApp = firebase.initializeApp({ // removed .default
+const firebaseApp = firebase.initializeApp({
         apiKey: process.env.FIREBASE_API_KEY,
         authDomain: process.env.FIREBASE_AUTH_DOMAIN,
         databaseURL: process.env.FIREBASE_DATABASE_URL,
@@ -27,8 +21,8 @@ const firebaseApp = firebase.initializeApp({ // removed .default
         measurementId: process.env.FIREBASE_MEASUREMENT_ID
 });
 
-const db = firebase.firestore(); // removed .default  
-const storage = firebase.storage(); // removed .default 
+const db = firebase.firestore();  
+const storage = firebase.storage(); 
 const storageRef = storage.ref();
 
 // Class constructors
@@ -284,23 +278,6 @@ const getPosts = async () => {
         })
         .catch(error => console.log(error));
 }
-
-// const getUserByUsername = username => {
-//     console.log('username', username)
-//     return db.collection('users').where('username', '==', username)
-//         .get()
-//         .then(doc => {
-//             if (doc.exists) {
-//                 console.log('if')
-//                 return doc.data();
-//             }
-//             else {
-//                 console.log('else')
-//                 return null;
-//             }
-//         })
-//         .catch(error => console.log(error));
-// }
 
 const getUserByUsername = username => {
     return db.collection('users').where('username', '==', username)
