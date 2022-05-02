@@ -156,7 +156,7 @@ function Post(props) {
         .then(() => {
             console.log(`Deleted post ${props.post_id}`);
             toggleDeleteButton();
-            props.getUserPosts();
+            props.getPosts();
         })
         .catch(error => {
             console.log(error);

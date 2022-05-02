@@ -34,8 +34,8 @@ function Feed(props) {
         });
     };
 
-    const getUserPosts = () => {
-        fetch('http://localhost:5000/get-posts')
+    const getPosts = () => {
+        fetch('https://sticknein-listener.herokuapp.com/get-posts')
             .then(response => {
                 return response.json()
             })
@@ -55,7 +55,7 @@ function Feed(props) {
 
     useEffect(() => {
         if (!posts) {
-            getUserPosts();
+            getPosts();
         };
     });
 
@@ -65,7 +65,7 @@ function Feed(props) {
                 <h2>Welcome to listener, {props.user.display_name}.</h2>  
             </div>
             
-            <PostBox user={props.user} getUserPosts={getUserPosts} />
+            <PostBox user={props.user} getPosts={getPosts} />
 
             {!posts && 
                 <h3 className='no-posts'>No posts yet!</h3>
@@ -80,7 +80,7 @@ function Feed(props) {
                                 active_user={props.user}
                                 comments={post.comments}
                                 post_id={post.post_id}
-                                getUserPosts={getUserPosts}
+                                getPosts={getPosts}
                                 liked_by={post.liked_by}
                                 link={post.link}
                                 text={post.text}

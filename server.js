@@ -229,7 +229,15 @@ app.post('/email-password-login', (req, res) => {
         .then(response => {
             res.send(response);
         })
-})
+});
+
+app.get('/get-posts', (req, res) => {
+    getPosts()
+        .then(posts => {
+            res.send(posts);
+        })
+        .catch(error => console.log(error));
+});
 
 app.post('/get-post-comments', (req, res) => {
     getPostComments(req.body.post_id)
@@ -253,14 +261,6 @@ app.post('/get-user-by-username', (req, res) => {
     return getUserByUsername(req.body.username)
         .then(response => {
             res.json(response);
-        })
-        .catch(error => console.log(error));
-})
-
-app.get('/get-posts', (req, res) => {
-    getPosts()
-        .then(posts => {
-            res.send(posts);
         })
         .catch(error => console.log(error));
 })
