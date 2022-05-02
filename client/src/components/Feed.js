@@ -12,7 +12,7 @@ function Feed(props) {
     const [comments, setComments] = useState(null);
 
     const getPostComments = post_id => {
-        fetch('http://localhost:5000/get-post-comments', {
+        fetch('/get-post-comments', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -35,7 +35,7 @@ function Feed(props) {
     };
 
     const getPosts = () => {
-        fetch('https://sticknein-listener.herokuapp.com/get-posts')
+        fetch('/get-posts')
             .then(response => {
                 return response.json()
             })
