@@ -55,14 +55,6 @@ const app = express();
 app.use(cors());
 const upload = multer({ dest: 'uploads/' });
 
-// Production mode
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, 'build')));
-    app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
-    });
-};
-
 const ref = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: process.env.FIRESTORE_DATABASE_URL
@@ -408,7 +400,15 @@ app.post('/upload-avatar', upload.single('file'), (req, res) => {
             res.json(url);
         })
         .catch(error => console.log(error));
-})
+});
+
+// Production mode
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, 'build')));
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
+    });
+};
 
 app.listen(process.env.PORT || 5000, () => {
     console.log('server started on port 5000');
