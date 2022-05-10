@@ -1,3 +1,5 @@
+
+
 .email-password-login {
     background: linear-gradient(45deg, var(--spotify-green), var(--listener-grey));
     width: 100vw;
@@ -22,8 +24,10 @@
 
 #email-password-setup-button {
     font-size: 0.8rem;
+    background-color: var(--spotify-green);
 }
 
-#email-password-setup-button:hover {
+#spotify-login-button {
+    font-size: 0.8rem;
     background-color: var(--spotify-green);
 }

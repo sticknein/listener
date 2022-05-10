@@ -1,5 +1,5 @@
 import { Email } from '@material-ui/icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@material-ui/core';
 
 import './EmailLogin.css';
@@ -16,7 +16,11 @@ function EmailLogin(props) {
         props.setupEmailLogin();
     }
 
-    const handleClick = e => {
+    const spotifyLogin = () => {
+        props.spotifyLogin();
+    }
+
+    const handleClick = () => {
         const credentials = JSON.stringify({
             email: email,
             password: password
@@ -40,14 +44,27 @@ function EmailLogin(props) {
                 window.alert('Password incorrect')
             }
         })
-    }
+    };
+
+    const keyPressHandler = ({ key }) => {
+        if (key === 'Enter') {
+            handleClick();
+        }
+    };
+
+    useEffect(() => {
+        window.addEventListener('keypress', keyPressHandler);
+        return () => {
+            window.removeEventListener('keypress', keyPressHandler);
+        }
+    }, [])
 
     return (
         <div className='email-password-login'>
             <div className='email-login-container'>
                 <h1>Login</h1>
 
-                <form onSubmit={e => handleClick(e)}>
+                <form onSubmit={handleClick}>
                     <input 
                         onChange={e => setEmail(e.target.value)}
                         value={email}
@@ -80,7 +97,13 @@ function EmailLogin(props) {
                     <Button
                         id='email-password-setup-button'
                         onClick={setupEmailLogin}
-                    >Click Here</Button>
+                    >Create Account</Button>
+                    <p>If your account has been activated for Spotify, login below.</p>
+                    <Button
+                        id='spotify-login-button'
+                        onClick={spotifyLogin}
+                    >Spotify Login*</Button>
+                    <p>*Requires activation. Contact me to activate your account.</p>
                 </form>
             </div>
         </div>

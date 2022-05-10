@@ -3,6 +3,7 @@ import './Profile.css';
 import FlipMove from 'react-flip-move';
 import Post from './Post';
 import { useParams } from 'react-router-dom';
+import { Button } from '@material-ui/core';
 
 function Profile(props) {
     const [posts, setPosts] = useState(null);
@@ -64,15 +65,16 @@ function Profile(props) {
 
     return (
         <div className='profile'>
-            <div className='sub-header'>
+            <div className='profile-header'>
                 <div id='prof-pic-row'>
                     <img src={profileUser.avatar} id='prof-pic' alt='Profile picture' />
                 </div>
                 <div id='name-row'>
                     <h1>{profileUser.display_name}</h1>
                     <h2>@{profileUser.username}</h2>
-                    <p className='bio'>{profileUser.bio}</p>
-                </div>
+                    {/* <Button className='edit-profile-button'>Edit Profile</Button> */}
+                </div>   
+                <p className='bio'>{profileUser.bio}</p>
             </div>
 
             <hr />
@@ -91,6 +93,7 @@ function Profile(props) {
                                 text={post.text}
                                 timestamp={post.timestamp}
                                 user={post.user}
+                                getUserPosts={getUserPosts}
                             /> 
                             {!commentHidden ? 
                                 <div className='comments'>

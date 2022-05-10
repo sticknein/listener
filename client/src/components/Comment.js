@@ -81,15 +81,23 @@ function Comment(props) {
     const toggleDeleteButton = () => {
         let visible = showDelete;
         setShowDelete(!visible);
-    }
+    };
+
+    const showProfile = () => {
+        window.location.assign(`/u/${props.user.username}`)
+    };
 
     return (
         <div className='comment'>
             <header className='comment-header'>
-                <Avatar className='comment-avatar' src={props.user.avatar} />
+                <Avatar 
+                    className='comment-avatar' 
+                    src={props.user.avatar} 
+                    onClick={showProfile}    
+                />
                 <div className='comment-header-text'>
-                    <h3 className='comment-display-name'>{props.user.display_name}</h3>
-                    <h4 className='comment-username'>@{props.user.username}</h4>
+                    <h3 className='comment-display-name' onClick={showProfile}>{props.user.display_name}</h3>
+                    <h4 className='comment-username' onClick={showProfile}>@{props.user.username}</h4>
                     <h4> • </h4>
                     <h5 id='comment-timestamp'>{dayjs(props.timestamp).fromNow()}</h5>
                     

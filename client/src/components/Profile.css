@@ -50,3 +50,8 @@
 hr {
     margin-top: 50px;
 }
+
+.edit-profile-button {
+    background-color: var(--spotify-green) !important;
+    
+}

@@ -21,7 +21,7 @@ import EmailLogin from './components/EmailLogin';
 
 function App(props) {
     const [createAccount, setCreateAccount] = useState(false);
-    const [hasSpotify, setHasSpotify] = useState(true);
+    const [hasSpotify, setHasSpotify] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState(null);
@@ -57,13 +57,17 @@ function App(props) {
 
     const cancelEmailLogin = () => {
         setCreateAccount(false);
-        setHasSpotify(true);
+        setHasSpotify(false);
         setIsLoggedIn(false);
     }
 
     const setupEmailLogin = () => {
         setHasSpotify(false);
         setCreateAccount(true);
+    }
+
+    const spotifyLogin = () => {
+        setHasSpotify(true);
     }
 
     const loginUser = email => {
@@ -126,6 +130,7 @@ function App(props) {
                     cancelEmailLogin={cancelEmailLogin} 
                     setupEmailLogin={setupEmailLogin}
                     loginUser={loginUser}
+                    spotifyLogin={spotifyLogin}
                 />
             </div>
         )

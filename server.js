@@ -254,7 +254,6 @@ app.post('/get-user', (req, res) => {
 })
 
 app.post('/get-user-by-username', (req, res) => {
-    console.log('req.body.username', req.body.username)
     return getUserByUsername(req.body.username)
         .then(response => {
             res.json(response);

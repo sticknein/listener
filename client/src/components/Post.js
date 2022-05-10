@@ -155,12 +155,13 @@ function Post(props) {
         .then(() => {
             console.log(`Deleted post ${props.post_id}`);
             toggleDeleteButton();
-            props.getPosts();
+            // props.getPosts();
+            window.location.reload();
         })
         .catch(error => {
             console.log(error);
         })
-    }
+    };
 
     const showProfile = () => {
         window.location.assign(`/u/${props.user.username}`)
