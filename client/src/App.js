@@ -23,6 +23,7 @@ function App(props) {
     const [createAccount, setCreateAccount] = useState(false);
     const [hasSpotify, setHasSpotify] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [editAccount, setEditAccount] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState(null);
 
@@ -109,10 +110,25 @@ function App(props) {
             .catch(error => console.log(error));
     }
 
+    const handleEditAccount = () => {
+        setEditAccount(true);
+    }
+
+    const cancelEditAccount = () => {
+        setEditAccount(false);
+    }
+
     if (isLoading) {
         return (
             <div>
                 <h1><Loading /></h1>
+            </div>
+        )
+    }
+    if (editAccount) {
+        return (
+            <div className='edit-account'>
+                <EditAccount user={user} cancelEditAccount={cancelEditAccount} />
             </div>
         )
     }
@@ -159,7 +175,7 @@ function App(props) {
                     <Switch>
                         <Route exact path='/' component={() => <Feed user={user} />} />
                         <Route path='/logout' component={() => <Logout logout={logout} />} />
-                        <Route exact path='/u/:username' component={() => <Profile user={user} />} />
+                        <Route exact path='/u/:username' component={() => <Profile user={user} handleEditAccount={handleEditAccount} />} />
                     </Switch>
                     <Route component={() => <PlaybackFeed user={user}/>} />  
                 </div>

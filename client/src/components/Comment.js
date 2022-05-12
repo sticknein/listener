@@ -36,7 +36,6 @@ function Comment(props) {
         .then(() => {
             console.log(`Deleted comment ${props.comment_id}`)
             toggleDeleteButton();
-
             props.getPostComments();
         })
         .catch(error => {

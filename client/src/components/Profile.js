@@ -54,6 +54,10 @@ function Profile(props) {
         .then(db_user => {
             setProfileUser(db_user);
         })
+    };
+
+    const handleEditAccount = () => {
+        props.handleEditAccount();
     }
 
     useEffect(() => {
@@ -63,16 +67,23 @@ function Profile(props) {
         }
     }, [])
 
+    console.log('profielUser', profileUser);
+    console.log('username', username);
+
     return (
         <div className='profile'>
             <div className='profile-header'>
                 <div id='prof-pic-row'>
                     <img src={profileUser.avatar} id='prof-pic' alt='Profile picture' />
                 </div>
-                <div id='name-row'>
-                    <h1>{profileUser.display_name}</h1>
-                    <h2>@{profileUser.username}</h2>
-                    {/* <Button className='edit-profile-button'>Edit Profile</Button> */}
+                <div className='profile-header-content'>
+                    <div className='username-container'>
+                        <h1 className='profile-display-name'>{profileUser.display_name}</h1>
+                        <h2 className='profile-username'>@{profileUser.username}</h2>
+                    </div>
+                    {props.user.username === username && 
+                        <Button className='edit-profile-button' onClick={handleEditAccount}>Edit Profile</Button>
+                    }
                 </div>   
                 <p className='bio'>{profileUser.bio}</p>
             </div>

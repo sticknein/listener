@@ -27,16 +27,17 @@
     margin: 10px 0px 0px 50px;
 }
 
-#name-row {
+.profile-header-content {
     margin-left: 10px;
+    display: flex;
 }
 
-#name-row > h1 {
+.profile-display-name {
     font-size: 30px;
     margin: 2px 2px 2px 50px;
 }
 
-#name-row > h2 {
+.profile-username {
     color: rgb(128, 128, 128);
     font-size: 20px;
     margin: 2px 2px 2px 50px;
@@ -53,5 +54,12 @@ hr {
 
 .edit-profile-button {
     background-color: var(--spotify-green) !important;
-    
+    position: fixed;
+    left: 320px;
+    border-radius: 30px !important;
+    height: 50px;
+}
+
+.bio {
+    width: 100%;
 }

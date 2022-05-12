@@ -326,24 +326,18 @@ const likePost = (post_id, email) => {
 };
 
 const sendComment = comment => {
-    return db.collection('comments').doc()
+    return db.collection('comments')
         .withConverter(commentConverter)
-        .set(comment)
-        .then(() => {
-            return getPostComments(comment.post_id)
-                .then(comments => {
-                    const comment_id = comments[comments.length - 1].comment_id;
-                    return db.collection('posts').doc(comment.post_id).update({
-                        comments: firebase.firestore.FieldValue.increment(1)
-                    })
-                    .then(() => {
-                        comment = { comment_id, ...comment }
-                        return comment;
-                    })
-                    .catch(error => console.log(error));
-                })
-                .catch(error => console.log(error));
+        .add(comment)
+        .then(doc => {
+            const comment_id = doc.id;
+            comment = { comment_id, ...comment }
+            db.collection('posts').doc(comment.post_id).update({
+                comments: firebase.firestore.FieldValue.increment(1)
+            })
+            return comment;
         })
+        .catch(error => console.log(error));
 }
 
 const sendPost = post => {

@@ -1,16 +1,18 @@
 .edit-account {
     text-align: center;
-    padding-top: 10%;
     flex: 1;
     background: linear-gradient(45deg, var(--spotify-green), var(--listener-grey));
-    width: 100vw !important;
+    height: 100%;
+    width: 100vw;
+    padding-top: 100px;
+    padding-bottom: 100px;
 }
 
 .edit-account-container {
     border: solid black 1px;
     width: 600px;
     height: 540px;
-    margin: 2vh 0 0 30vw;
+    margin-left: 33%;
     box-shadow: 5px 5px 5px grey;
     border-radius: 10px;
     background-color: rgb(221, 221, 221, 0.8);
@@ -33,4 +35,15 @@
     font-weight: 300;
     resize: none;
     outline: none;
+    width: 250px;
+};
+
+.login-button {
+    width: 100px !important;
+    background-color: var(--spotify-green) !important;
+}
+
+.cancel-button {
+    background-color: red !important;
+    border-radius: 30px !important;
 }

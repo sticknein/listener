@@ -37,7 +37,7 @@ function Post(props) {
                 setCommentHidden(true);
                 setComments([]);
             }
-        })
+        });
     });
 
     const likePost = () => {
@@ -108,7 +108,8 @@ function Post(props) {
     };
 
     const sendComment = () => {
-        const commentObject = {
+        if (comment !== '') {
+            const commentObject = {
             post_id: props.post_id,
             user: props.active_user,
             text: comment
@@ -135,6 +136,10 @@ function Post(props) {
             .catch(error => console.log(error));
 
         setComment('');
+        }
+        else {
+            window.alert('No empty comments!')
+        }
     }
 
     const toggleDeleteButton = () => {
@@ -155,7 +160,6 @@ function Post(props) {
         .then(() => {
             console.log(`Deleted post ${props.post_id}`);
             toggleDeleteButton();
-            // props.getPosts();
             window.location.reload();
         })
         .catch(error => {

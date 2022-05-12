@@ -95,6 +95,10 @@ function EditAccount(props) {
         }
     };
 
+    const cancelEditAccount = () => {
+        props.cancelEditAccount();
+    }
+
     return (
         <div className='edit-account'>
             <div className='edit-account-container'>
@@ -140,10 +144,16 @@ function EditAccount(props) {
                     />
                     <p>Upload a profile picture (jpeg or png)</p>
                     <Button 
-                    id='login-button' 
-                    type='submit'
+                        id='login-button' 
+                        type='submit'
                     >
-                    Confirm
+                        Confirm
+                    </Button>
+                    <Button 
+                        className='cancel-button'
+                        onClick={cancelEditAccount}
+                    >
+                        Cancel
                     </Button>
                 </form> 
             </div>          

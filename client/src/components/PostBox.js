@@ -7,7 +7,8 @@ function PostBox(props) {
     const [link, setLink] = useState('');
 
     const sendPost = () => {
-        const post = {
+        if (text !== '') {
+            const post = {
             user: props.user,
             text: text,
             link: link
@@ -27,6 +28,10 @@ function PostBox(props) {
 
         setText('');
         setLink('');
+        }
+        else {
+            window.alert('No empty posts!')
+        }
     };
     
     return (
